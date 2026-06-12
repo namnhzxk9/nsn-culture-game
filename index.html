@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NSN Culture Game | Cây Trường Tồn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --nsn-blue:#0757a6;
+      --nsn-blue-2:#0b75d1;
+      --nsn-navy:#071a3a;
+      --nsn-cyan:#25c0ff;
+      --leaf:#53b84b;
+      --leaf-dark:#1f7a3b;
+      --fruit:#e83b33;
+      --gold:#f8c747;
+      --bg:#eef7ff;
+      --card:rgba(255,255,255,.78);
+      --line:rgba(255,255,255,.28);
+      --text:#132238;
+      --muted:#607089;
+      --shadow:0 24px 70px rgba(8, 42, 94, .22);
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--text);
+      min-height:100vh;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(37,192,255,.38), transparent 30%),
+        radial-gradient(circle at 88% 4%, rgba(83,184,75,.26), transparent 28%),
+        radial-gradient(circle at 88% 80%, rgba(7,87,166,.20), transparent 26%),
+        linear-gradient(135deg,#edf8ff 0%,#f8fbff 42%,#eef8f2 100%);
+      overflow-x:hidden;
+    }
+    .page-glow{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+    .orb{position:absolute;border-radius:999px;filter:blur(18px);opacity:.65;animation:float 12s ease-in-out infinite alternate}
+    .orb.one{width:360px;height:360px;background:rgba(7,87,166,.24);left:-90px;top:120px}
+    .orb.two{width:300px;height:300px;background:rgba(83,184,75,.22);right:-80px;top:90px;animation-delay:2s}
+    .orb.three{width:240px;height:240px;background:rgba(37,192,255,.20);right:15%;bottom:80px;animation-delay:4s}
+    @keyframes float{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(22px,-18px,0) scale(1.08)}}
+
+    .app{width:min(1180px,calc(100vw - 36px));margin:0 auto;padding:24px 0 42px}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:18px;
+      padding:16px 20px;margin-bottom:26px;
+      background:rgba(255,255,255,.60);backdrop-filter:blur(18px);
+      border:1px solid rgba(255,255,255,.68);border-radius:24px;box-shadow:0 12px 36px rgba(7,87,166,.10)
+    }
+    .brand{display:flex;align-items:center;gap:14px;min-width:0}
+    .brand-logo{height:42px;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 8px 16px rgba(7,87,166,.18))}
+    .brand-text{line-height:1.05}
+    .brand-title{font-weight:900;letter-spacing:-.04em;font-size:20px;color:var(--nsn-navy)}
+    .brand-sub{font-size:12px;color:var(--muted);font-weight:700;margin-top:4px;letter-spacing:.08em;text-transform:uppercase}
+    .pill{
+      padding:10px 14px;border-radius:999px;
+      background:linear-gradient(135deg,rgba(7,87,166,.12),rgba(83,184,75,.12));
+      color:var(--nsn-blue);font-size:13px;font-weight:800;white-space:nowrap;border:1px solid rgba(7,87,166,.14)
+    }
+
+    .hero{
+      position:relative;display:grid;grid-template-columns:1.04fr .96fr;gap:24px;align-items:stretch;
+      min-height:660px;
+    }
+    .panel{
+      background:var(--card);border:1px solid rgba(255,255,255,.8);border-radius:var(--radius);
+      box-shadow:var(--shadow);backdrop-filter:blur(22px);overflow:hidden;position:relative
+    }
+    .hero-copy{padding:42px;display:flex;flex-direction:column;justify-content:space-between;background:
+      linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,255,255,.68));}
+    .kicker{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border-radius:999px;background:rgba(7,87,166,.10);color:var(--nsn-blue);font-weight:900;font-size:12px;letter-spacing:.12em;text-transform:uppercase;width:max-content}
+    .kicker::before{content:"";width:8px;height:8px;background:var(--leaf);border-radius:50%;box-shadow:0 0 0 6px rgba(83,184,75,.16)}
+    h1{font-size:clamp(42px,5vw,76px);line-height:.94;letter-spacing:-.07em;margin:24px 0 18px;color:var(--nsn-navy)}
+    .lead{font-size:18px;line-height:1.7;color:#31445c;margin:0;max-width:620px}
+    .quote-card{margin-top:28px;padding:22px;border-radius:24px;background:linear-gradient(135deg,rgba(7,87,166,.92),rgba(8,44,94,.94));color:white;box-shadow:0 18px 40px rgba(7,87,166,.22)}
+    .quote-card b{display:block;font-size:21px;line-height:1.25;letter-spacing:-.03em;margin-bottom:8px}
+    .quote-card span{color:rgba(255,255,255,.78);font-weight:600;line-height:1.55}
+    .start-card{margin-top:28px;display:grid;gap:14px}
+    .field{display:grid;gap:7px}
+    label{font-weight:800;color:#1f3550;font-size:13px}
+    input,select{border:1px solid rgba(7,87,166,.18);background:white;border-radius:16px;padding:14px 15px;font:inherit;color:var(--text);outline:none;box-shadow:0 8px 20px rgba(7,87,166,.06)}
+    input:focus,select:focus{border-color:var(--nsn-blue-2);box-shadow:0 0 0 4px rgba(11,117,209,.12)}
+    .cta{border:0;border-radius:18px;padding:16px 18px;background:linear-gradient(135deg,var(--nsn-blue),var(--nsn-blue-2));color:white;font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 16px 30px rgba(7,87,166,.26);transition:.2s ease;letter-spacing:.01em}
+    .cta:hover{transform:translateY(-2px);box-shadow:0 22px 38px rgba(7,87,166,.30)}
+    .ghost{border:1px solid rgba(7,87,166,.18);background:rgba(255,255,255,.75);color:var(--nsn-blue);box-shadow:none}
+
+    .tree-stage{
+      padding:28px;display:grid;place-items:center;min-height:660px;
+      background:
+        linear-gradient(180deg,rgba(7,87,166,.82),rgba(5,30,65,.96)),
+        radial-gradient(circle at 50% 18%,rgba(83,184,75,.35),transparent 40%);
+      color:white;
+    }
+    .tree-stage::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,black,transparent 85%)}
+    .tree-wrap{position:relative;z-index:1;text-align:center;width:100%}
+    .tree-title{font-weight:900;font-size:16px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.78);margin-bottom:10px}
+    .tree-score{font-size:56px;line-height:1;font-weight:900;letter-spacing:-.06em;margin-bottom:2px;color:#fff}
+    .tree-caption{color:rgba(255,255,255,.72);font-weight:700;margin-bottom:18px}
+    svg.tree{width:min(490px,100%);height:auto;display:block;margin:0 auto;filter:drop-shadow(0 24px 34px rgba(0,0,0,.30))}
+    .soil{fill:#2b180f}.root{fill:none;stroke:#6b442b;stroke-width:7;stroke-linecap:round;opacity:.9}.trunk{fill:#6f3f22}.branch{fill:none;stroke:#6f3f22;stroke-width:18;stroke-linecap:round}.branch.thin{stroke-width:11}.leaf{fill:var(--leaf);transform-origin:center;transition:.55s ease}.leaf.dark{fill:#318f40}.leaf.light{fill:#83d35e}.fruit{fill:var(--fruit);stroke:#b62020;stroke-width:2;transform-origin:center;transition:.5s ease}.shine{fill:rgba(255,255,255,.72)}
+    .stage-seed .grow-2,.stage-seed .grow-3,.stage-seed .grow-4,.stage-seed .grow-5{opacity:0;transform:scale(.75)}
+    .stage-sapling .grow-3,.stage-sapling .grow-4,.stage-sapling .grow-5{opacity:0;transform:scale(.78)}
+    .stage-young .grow-4,.stage-young .grow-5{opacity:0;transform:scale(.82)}
+    .stage-mature .grow-5{opacity:0;transform:scale(.82)}
+    .stage-fruit .fruit{animation:pop .5s ease both}
+    @keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.08);opacity:1}100%{transform:scale(1)}}
+    .tree-note{margin:18px auto 0;max-width:420px;padding:16px;border-radius:20px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.82);font-weight:600;line-height:1.55}
+
+    .game{display:none;grid-template-columns:360px 1fr;gap:22px;align-items:start}
+    .profile{padding:24px;position:sticky;top:18px}
+    .profile h2{font-size:26px;letter-spacing:-.04em;margin:0 0 6px;color:var(--nsn-navy)}
+    .profile p{margin:0;color:var(--muted);line-height:1.55;font-weight:600}
+    .mini-tree{height:270px;display:grid;place-items:center;margin:12px 0;background:linear-gradient(135deg,rgba(7,87,166,.08),rgba(83,184,75,.12));border-radius:24px;overflow:hidden}
+    .mini-tree svg{width:240px}
+    .score-list{display:grid;gap:10px;margin-top:16px}
+    .score-row{display:grid;grid-template-columns:112px 1fr 38px;gap:10px;align-items:center;font-size:12px;font-weight:850;color:#253c57}
+    .bar{height:8px;background:rgba(7,87,166,.10);border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--nsn-blue),var(--leaf));border-radius:999px;transition:.35s ease}
+    .risk i{background:linear-gradient(90deg,#f8c747,#e83b33)}
+    .question-panel{padding:28px;background:rgba(255,255,255,.82)}
+    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px;color:var(--muted);font-weight:800;font-size:13px}.progress-line{height:9px;background:rgba(7,87,166,.10);border-radius:999px;overflow:hidden;flex:1}.progress-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--nsn-blue),var(--leaf));border-radius:999px;transition:.35s ease}
+    .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.tag{padding:7px 10px;border-radius:999px;background:rgba(7,87,166,.08);color:var(--nsn-blue);font-size:12px;font-weight:900}.tag.green{background:rgba(83,184,75,.14);color:#26703a}.tag.gold{background:rgba(248,199,71,.20);color:#876300}
+    .case-title{font-size:28px;line-height:1.15;letter-spacing:-.045em;margin:0 0 12px;color:var(--nsn-navy)}
+    .case-text{font-size:17px;line-height:1.7;color:#334861;margin:0 0 20px;font-weight:560}
+    .options{display:grid;gap:12px}.option{width:100%;text-align:left;border:1px solid rgba(7,87,166,.14);background:white;border-radius:20px;padding:16px 18px;display:grid;grid-template-columns:34px 1fr;gap:12px;cursor:pointer;transition:.18s ease;box-shadow:0 10px 22px rgba(7,87,166,.06);font:inherit}.option:hover{transform:translateY(-2px);border-color:rgba(7,87,166,.32);box-shadow:0 16px 30px rgba(7,87,166,.11)}.option .letter{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:rgba(7,87,166,.10);color:var(--nsn-blue);font-weight:900}.option b{display:block;color:#1f3550;margin-bottom:3px}.option span{color:#55677e;line-height:1.55;font-weight:560}.option.selected{border-color:var(--nsn-blue);box-shadow:0 0 0 4px rgba(7,87,166,.12)}
+    .feedback{display:none;margin-top:18px;padding:18px;border-radius:20px;background:linear-gradient(135deg,rgba(7,87,166,.08),rgba(83,184,75,.10));border:1px solid rgba(7,87,166,.12)}.feedback h3{margin:0 0 7px;font-size:17px;color:var(--nsn-navy)}.feedback p{margin:0;color:#40556e;line-height:1.65;font-weight:600}.nav{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}.nav button{min-width:132px}
+    .result{display:none}.result-card{padding:34px;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.72))}.result h2{font-size:44px;line-height:1;margin:0 0 12px;letter-spacing:-.06em;color:var(--nsn-navy)}.result-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;align-items:center}.result-badge{font-size:18px;font-weight:900;color:var(--nsn-blue);margin-bottom:12px}.commit{margin-top:22px;padding:20px;border-radius:22px;background:rgba(7,87,166,.08);border:1px solid rgba(7,87,166,.13)}.commit b{display:block;margin-bottom:8px;color:var(--nsn-navy)}.commit p{margin:0;line-height:1.65;color:#40556e;font-weight:600}
+
+    @media (max-width:980px){.hero,.game,.result-grid{grid-template-columns:1fr}.tree-stage{min-height:520px}.profile{position:relative;top:auto}.hero-copy{padding:30px}.game{gap:18px}.profile{order:2}.question-panel{order:1}}
+    @media (max-width:640px){.app{width:min(100vw - 20px,1180px);padding-top:12px}.pill{display:none}header{padding:12px}.brand-logo{height:34px}h1{font-size:46px}.lead{font-size:16px}.hero-copy,.question-panel,.profile,.result-card{padding:22px}.case-title{font-size:24px}.option{grid-template-columns:1fr}.option .letter{display:none}}
+  </style>
+</head>
+<body>
+  <div class="page-glow"><div class="orb one"></div><div class="orb two"></div><div class="orb three"></div></div>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <img class="brand-logo" src="https://nsn.vn/upload/logo-ft-1.png" alt="NSN logo" onerror="this.style.display='none';document.querySelector('.brand-title').textContent='NSN';" />
+        <div class="brand-text">
+          <div class="brand-title">NSN Culture Game</div>
+          <div class="brand-sub">Cây Trường Tồn</div>
+        </div>
+      </div>
+      <div class="pill">Khởi tạo giá trị bền lâu</div>
+    </header>
+
+    <main id="startScreen" class="hero">
+      <section class="panel hero-copy">
+        <div>
+          <div class="kicker">TRUST NSN</div>
+          <h1>Xây Cây<br/>Trường Tồn</h1>
+          <p class="lead">Một trải nghiệm ra quyết định ngắn gọn: mỗi lựa chọn làm cây lớn lên, đứng yên hoặc suy yếu. Không chọn đáp án đẹp nhất; chọn quyết định đúng nhất với tinh thần NSN.</p>
+          <div class="quote-card">
+            <b>“Kiến tạo giá trị bền vững bằng tinh thần TRUST.”</b>
+            <span>Niềm tin, hạnh phúc và giá trị bền lâu là hệ quy chiếu cho từng quyết định trong game.</span>
+          </div>
+        </div>
+        <div class="start-card">
+          <div class="field">
+            <label for="playerName">Tên người chơi</label>
+            <input id="playerName" placeholder="Nhập tên hoặc biệt danh" />
+          </div>
+          <div class="field">
+            <label for="roleSelect">Vai trò gần nhất với công việc</label>
+            <select id="roleSelect"></select>
+          </div>
+          <button id="startBtn" class="cta">Bắt đầu</button>
+        </div>
+      </section>
+      <section class="panel tree-stage">
+        <div class="tree-wrap">
+          <div class="tree-title">Mức trưởng thành văn hóa</div>
+          <div id="heroScore" class="tree-score">0</div>
+          <div id="heroCaption" class="tree-caption">Mầm cây đang chờ quyết định đầu tiên</div>
+          <div id="heroTree" class="stage-seed"></div>
+          <div class="tree-note">Gốc rễ là triết lý kinh doanh. Thân cây là giá trị cốt lõi. Tán cây là sứ mệnh. Quả ngọt là tầm nhìn.</div>
+        </div>
+      </section>
+    </main>
+
+    <section id="gameScreen" class="game">
+      <aside class="panel profile">
+        <h2 id="profileName">Người chơi</h2>
+        <p id="profileRole">Vai trò</p>
+        <div class="mini-tree"><div id="sideTree" class="stage-sapling"></div></div>
+        <div class="score-list" id="scoreList"></div>
+      </aside>
+      <section class="panel question-panel">
+        <div class="progress-top">
+          <span id="qIndex">01/07</span>
+          <div class="progress-line"><i id="progressBar"></i></div>
+          <span id="riskLabel">Rủi ro thấp</span>
+        </div>
+        <div class="tag-row" id="tags"></div>
+        <h2 class="case-title" id="caseTitle"></h2>
+        <p class="case-text" id="caseText"></p>
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback"><h3 id="fbTitle"></h3><p id="fbText"></p></div>
+        <div class="nav">
+          <button id="nextBtn" class="cta" disabled>Tiếp tục</button>
+        </div>
+      </section>
+    </section>
+
+    <section id="resultScreen" class="result">
+      <div class="panel result-card">
+        <div class="result-grid">
+          <div>
+            <div class="result-badge" id="resultBadge">Kết quả</div>
+            <h2 id="resultTitle"></h2>
+            <p class="lead" id="resultText"></p>
+            <div class="commit"><b>Cam kết sau game</b><p id="commitText"></p></div>
+            <div class="nav" style="justify-content:flex-start"><button id="replayBtn" class="cta ghost">Chơi lại</button></div>
+          </div>
+          <section class="panel tree-stage" style="min-height:520px;box-shadow:none">
+            <div class="tree-wrap">
+              <div class="tree-title">Cây của bạn</div>
+              <div id="finalScore" class="tree-score">0</div>
+              <div id="finalCaption" class="tree-caption">Đang tổng hợp</div>
+              <div id="finalTree" class="stage-fruit"></div>
+              <div class="tree-note">TRUST NSN – Hạnh phúc lan tỏa, giá trị bền vững.</div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+<script>
+const ROLES = [
+  {id:'leadership',name:'Ban lãnh đạo / Quản lý cấp cao'},
+  {id:'pm',name:'PM / Quản lý dự án'},
+  {id:'tender_design',name:'Đấu thầu – Thiết kế'},
+  {id:'construction',name:'QLDA – Thi công – Kỹ thuật công trường'},
+  {id:'procurement',name:'Mua hàng – Cung ứng'},
+  {id:'finance',name:'Tài chính – Kế toán'},
+  {id:'hr_admin',name:'Nhân sự – Hành chính – Văn phòng'},
+  {id:'safety_quality',name:'An toàn – QA/QC – PCCC'},
+  {id:'business',name:'Kinh doanh – Khách hàng'},
+  {id:'technology',name:'Công nghệ – R&D – Chuyển đổi số'},
+  {id:'new_member',name:'Nhân sự mới'},
+  {id:'general',name:'Khác / Hỗ trợ chung'}
+];
+
+const initialScores = {trust:50, responsibility:50, heart:50, professionalism:50, teamwork:50, innovation:50, leadership:50, efficiency:50, risk:28};
+let state = {player:'',role:'',roleName:'',scores:{...initialScores},questions:[],index:0,selected:null,history:[]};
+
+const TREE_SVG = `
+<svg class="tree" viewBox="0 0 520 520" aria-label="Cây Trường Tồn">
+  <ellipse class="soil" cx="260" cy="466" rx="145" ry="30" opacity=".95"/>
+  <path class="root grow-2" d="M258 430 C220 448, 190 456, 148 459 M260 431 C292 450, 330 454, 382 459 M256 431 C246 456, 232 464, 205 475 M266 431 C278 454, 300 466, 332 475"/>
+  <path class="trunk grow-2" d="M239 434 C242 360, 244 306, 232 246 C251 270, 270 276, 291 246 C276 306, 279 365, 286 434 Z"/>
+  <path class="branch grow-3" d="M260 292 C205 250, 155 230, 106 235"/>
+  <path class="branch grow-3" d="M262 282 C319 239, 370 218, 424 219"/>
+  <path class="branch thin grow-3" d="M254 333 C208 319, 166 326, 130 358"/>
+  <path class="branch thin grow-3" d="M270 333 C316 306, 359 314, 399 350"/>
+  <path class="branch thin grow-4" d="M260 241 C248 195, 257 157, 290 121"/>
+  <circle class="leaf light grow-1" cx="262" cy="226" r="36"/>
+  <circle class="leaf grow-2" cx="229" cy="202" r="44"/>
+  <circle class="leaf dark grow-2" cx="294" cy="203" r="46"/>
+  <circle class="leaf light grow-3" cx="174" cy="191" r="56"/>
+  <circle class="leaf grow-3" cx="112" cy="236" r="56"/>
+  <circle class="leaf dark grow-3" cx="397" cy="191" r="61"/>
+  <circle class="leaf grow-3" cx="445" cy="240" r="54"/>
+  <circle class="leaf light grow-4" cx="253" cy="126" r="62"/>
+  <circle class="leaf dark grow-4" cx="319" cy="129" r="55"/>
+  <circle class="leaf grow-4" cx="223" cy="294" r="64"/>
+  <circle class="leaf dark grow-4" cx="305" cy="296" r="68"/>
+  <circle class="leaf light grow-4" cx="157" cy="319" r="52"/>
+  <circle class="leaf grow-4" cx="393" cy="321" r="56"/>
+  <g class="grow-5">
+    <circle class="fruit" cx="160" cy="220" r="16"/><circle class="shine" cx="154" cy="214" r="5"/>
+    <circle class="fruit" cx="250" cy="126" r="17"/><circle class="shine" cx="244" cy="120" r="5"/>
+    <circle class="fruit" cx="360" cy="205" r="17"/><circle class="shine" cx="354" cy="199" r="5"/>
+    <circle class="fruit" cx="432" cy="270" r="15"/><circle class="shine" cx="427" cy="265" r="5"/>
+    <circle class="fruit" cx="208" cy="318" r="16"/><circle class="shine" cx="202" cy="312" r="5"/>
+    <circle class="fruit" cx="318" cy="318" r="18"/><circle class="shine" cx="312" cy="312" r="5"/>
+    <circle class="fruit" cx="108" cy="298" r="14"/><circle class="shine" cx="103" cy="293" r="4"/>
+  </g>
+</svg>`;
+
+
+const QUESTION_DATA = {
+  "common": [
+    [
+      "Chữ tín trước deadline",
+      "Một cam kết với khách có nguy cơ trễ do dữ liệu chưa đủ. Nếu nộp ngay thì đẹp tiến độ, nếu chờ thì mất nhịp làm việc.",
+      "Ra bản có kiểm soát: nêu trạng thái dữ liệu, giả định, rủi ro, người chịu trách nhiệm xác nhận và mốc phản hồi.",
+      "TRUST",
+      "Cây Trường Tồn"
+    ],
+    [
+      "Tận tâm có chuẩn mực",
+      "Khách/đồng nghiệp nhờ hỗ trợ thêm ngoài phạm vi, việc nhỏ nhưng ảnh hưởng nguồn lực của team.",
+      "Làm rõ nhu cầu thật, tác động đến nguồn lực/tiến độ, đề xuất phương án hỗ trợ có điều kiện và được xác nhận.",
+      "Heart",
+      "TRUST"
+    ],
+    [
+      "Không đổ lỗi nhưng không bỏ trách nhiệm",
+      "Một lỗi liên phòng phát sinh. Mọi người muốn “tập trung sửa thôi, đừng nhắc trách nhiệm”.",
+      "Xử lý hậu quả ngay, sau đó chốt fact, nguyên nhân gốc, trách nhiệm hệ thống và biện pháp ngăn lặp lại.",
+      "Responsibility",
+      "TRUST"
+    ],
+    [
+      "Sáng tạo không tùy tiện",
+      "Một cách làm mới giúp nhanh hơn nhưng làm dữ liệu phân mảnh giữa các nhóm.",
+      "Đánh giá hiệu quả, rủi ro, chuẩn hóa thử nghiệm và chỉ nhân rộng khi kiểm soát được dữ liệu/đầu ra.",
+      "Innovation",
+      "TRUST"
+    ],
+    [
+      "Daily Briefing không hình thức",
+      "Cuộc họp ngày chỉ còn báo cáo đã làm, không ai nói rủi ro vì sợ bị đánh giá.",
+      "Đổi trọng tâm sang rủi ro/vướng mắc/cần hỗ trợ; người quản lý làm mẫu bằng việc nêu rủi ro của mình trước.",
+      "3G",
+      "Thủ lĩnh NSN"
+    ]
+  ],
+  "roleSeeds": {
+    "leadership": [
+      {
+        "title": "Tăng trưởng hay bền vững",
+        "text": "Có cơ hội nhận dự án doanh thu lớn nhưng nguồn lực hiện hữu đang căng và chất lượng có nguy cơ bị kéo xuống.",
+        "best": "Đánh giá năng lực thật, điều kiện nhận việc, phương án bổ sung nguồn lực và chỉ cam kết khi bảo vệ được chất lượng, con người, chữ tín.",
+        "tag": "Chiến lược",
+        "source": "Cây Trường Tồn"
+      },
+      {
+        "title": "Người giỏi nhưng độc hại",
+        "text": "Một nhân sự kết quả tốt nhưng thường xuyên đổ lỗi và làm giảm hợp tác liên phòng.",
+        "best": "Đánh giá cả kết quả và hành vi TRUST; đặt yêu cầu sửa hành vi, hỗ trợ rõ ràng và có ngưỡng xử lý nếu không thay đổi.",
+        "tag": "Con người",
+        "source": "TRUST"
+      },
+      {
+        "title": "KPI ngắn hạn",
+        "text": "Một đơn vị có thể đạt KPI quý bằng cách đẩy việc sang giai đoạn sau, rủi ro chưa bộc lộ ngay.",
+        "best": "Yêu cầu minh bạch rủi ro tích lũy, điều kiện chuyển giai đoạn và chỉ ghi nhận kết quả khi không tạo nợ hệ thống.",
+        "tag": "KPI",
+        "source": "Cây Trường Tồn"
+      },
+      {
+        "title": "Cắt đào tạo để tiết kiệm",
+        "text": "Ngân sách căng, đề xuất cắt đào tạo nội bộ vì chưa tạo doanh thu trực tiếp.",
+        "best": "Ưu tiên đào tạo trọng điểm gắn với lỗi/rủi ro thực tế, đo hiệu quả bằng năng lực và giảm lỗi thay vì cắt cơ học.",
+        "tag": "Năng lực",
+        "source": "3G"
+      },
+      {
+        "title": "Cam kết quá sức",
+        "text": "Khách chiến lược muốn cam kết tiến độ vượt năng lực hiện tại.",
+        "best": "Đàm phán cam kết theo điều kiện nguồn lực, phạm vi và mốc quyết định; không lấy quan hệ để che thiếu năng lực.",
+        "tag": "Khách hàng",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sự cố truyền thông nội bộ",
+        "text": "Một sự cố bị lan truyền trong công ty, tạo tâm lý đổ lỗi giữa các phòng.",
+        "best": "Truyền thông fact, nguyên tắc xử lý, người chịu trách nhiệm và bài học hệ thống; tránh săn lỗi cá nhân hoặc xoa dịu chung chung.",
+        "tag": "Minh bạch",
+        "source": "Sổ tay"
+      },
+      {
+        "title": "Thưởng theo doanh số",
+        "text": "Cơ chế thưởng đang khiến một số nhóm tối ưu doanh số nhưng bỏ qua rủi ro triển khai.",
+        "best": "Điều chỉnh thước đo để cân bằng doanh số, chất lượng, hài lòng khách hàng, phối hợp và rủi ro hậu kỳ.",
+        "tag": "Quản trị",
+        "source": "Cây Trường Tồn"
+      },
+      {
+        "title": "Thay đổi tổ chức",
+        "text": "Cần sáp nhập/chia tách bộ phận để tăng hiệu quả nhưng có thể tạo lo lắng cho nhân sự.",
+        "best": "Truyền thông lý do, nguyên tắc, lộ trình, quyền lợi và vai trò mới; thiết kế cơ chế phản hồi hai chiều.",
+        "tag": "Tổ chức",
+        "source": "3G"
+      },
+      {
+        "title": "Chọn nhà thầu chiến lược",
+        "text": "Đối tác quen có giá cao hơn thị trường nhưng phối hợp ổn định. Đối tác mới rẻ hơn nhưng chưa chứng minh năng lực.",
+        "best": "Quyết bằng ma trận tổng giá trị: giá, năng lực, rủi ro, chất lượng, chữ tín và khả năng đồng hành dài hạn.",
+        "tag": "Đối tác",
+        "source": "TRUST"
+      },
+      {
+        "title": "Áp lực lợi nhuận",
+        "text": "Một dự án có thể tăng lợi nhuận nếu giảm một số tiêu chuẩn nội bộ chưa bị khách phát hiện.",
+        "best": "Không giảm chuẩn ngầm; nếu tối ưu thì phải chứng minh không ảnh hưởng chất lượng/an toàn/chữ tín và được phê duyệt.",
+        "tag": "Lợi nhuận",
+        "source": "Professionalism"
+      },
+      {
+        "title": "Lãnh đạo làm thay",
+        "text": "Một quản lý cấp dưới yếu, lãnh đạo cấp cao thường xuyên can thiệp trực tiếp để cứu kết quả.",
+        "best": "Huấn luyện qua Gắn-Gương-Giao, đặt mốc kiểm soát và trách nhiệm; chỉ can thiệp khi rủi ro vượt ngưỡng.",
+        "tag": "3G",
+        "source": "Thủ lĩnh NSN"
+      },
+      {
+        "title": "Văn hóa báo cáo đẹp",
+        "text": "Báo cáo tháng ít rủi ro, nhưng thực tế nhiều vấn đề bị giữ ở cấp dưới.",
+        "best": "Tạo cơ chế báo cáo rủi ro an toàn, thưởng minh bạch sớm và xử lý nghiêm việc giấu lỗi gây hậu quả.",
+        "tag": "Minh bạch",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đầu tư công nghệ",
+        "text": "Một giải pháp số hóa tốn chi phí ban đầu nhưng có thể giảm lỗi và tăng chuẩn hóa.",
+        "best": "Thử nghiệm có kiểm soát theo use case cụ thể, đo ROI bằng năng suất, giảm lỗi, khả năng nhân rộng.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Dự án danh tiếng",
+        "text": "Dự án có hình ảnh tốt nhưng điều kiện thương mại và pháp lý nhiều bất lợi.",
+        "best": "Tách giá trị thương hiệu khỏi rủi ro hợp đồng; chỉ nhận nếu có điều kiện bảo vệ tài chính, pháp lý và nguồn lực.",
+        "tag": "Rủi ro",
+        "source": "Professionalism"
+      },
+      {
+        "title": "Xử lý quản lý yếu",
+        "text": "Một quản lý được nhân viên quý nhưng thường thiếu quyết đoán, gây chậm việc.",
+        "best": "Hỗ trợ bằng tiêu chuẩn quản lý rõ: quyết định, giao việc, kiểm soát; đánh giá bằng cả Heart và Professionalism.",
+        "tag": "Năng lực quản lý",
+        "source": "3G"
+      },
+      {
+        "title": "Ưu tiên khách lớn",
+        "text": "Khách lớn yêu cầu ưu tiên nguồn lực, có thể ảnh hưởng các khách nhỏ đang cam kết.",
+        "best": "Rà soát toàn bộ cam kết, phân bổ minh bạch theo mức độ rủi ro và thông tin sớm cho các bên bị ảnh hưởng.",
+        "tag": "Chữ tín",
+        "source": "Cây Trường Tồn"
+      },
+      {
+        "title": "Sai lầm cấp hệ thống",
+        "text": "Một lỗi lặp lại nhiều dự án, nhưng mỗi lần đều được xử lý như lỗi cá nhân.",
+        "best": "Chuyển sang điều tra hệ thống: quy trình, năng lực, kiểm soát, công cụ, trách nhiệm phê duyệt và đào tạo.",
+        "tag": "Root cause",
+        "source": "Professionalism"
+      },
+      {
+        "title": "Văn hóa phản biện",
+        "text": "Người phản biện thẳng bị xem là gây khó dễ, nên dần ít ai nói vấn đề thật.",
+        "best": "Thiết lập chuẩn phản biện bằng dữ kiện, tách người-vấn đề và bảo vệ người nêu rủi ro đúng cách.",
+        "tag": "Phản biện",
+        "source": "Sổ tay"
+      },
+      {
+        "title": "Hạnh phúc người đồng hành",
+        "text": "Dự án tốt về tài chính nhưng kéo dài tình trạng quá tải và nghỉ việc.",
+        "best": "Đưa sức khỏe đội ngũ vào điều kiện vận hành: ưu tiên, nguồn lực, nghỉ bù, học sau dự án và phòng ngừa quá tải lặp lại.",
+        "tag": "Con người",
+        "source": "Cây Trường Tồn"
+      },
+      {
+        "title": "Di sản lãnh đạo",
+        "text": "Kết quả năm tốt nhưng phụ thuộc vào vài cá nhân chủ chốt.",
+        "best": "Đầu tư kế thừa: chuẩn hóa tri thức, đào tạo lớp kế cận, phân quyền có kiểm soát và giảm phụ thuộc cá nhân.",
+        "tag": "Kế thừa",
+        "source": "3G"
+      }
+    ],
+    "pm": [
+      {
+        "title": "Baseline bị phá",
+        "text": "Khách thay đổi phạm vi nhưng vẫn yêu cầu giữ deadline ban đầu.",
+        "best": "Lập impact log về phạm vi/tiến độ/chi phí/rủi ro, đề xuất option và xin xác nhận trước khi tái cam kết.",
+        "tag": "Change control",
+        "source": "TRUST"
+      },
+      {
+        "title": "RFI bị treo",
+        "text": "RFI liên phòng quá hạn, công trường chờ quyết định.",
+        "best": "Tổ chức họp ngắn đúng người, chốt fact, option, người quyết và deadline; cập nhật risk log.",
+        "tag": "Hợp lực",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tiến độ đẹp trên báo cáo",
+        "text": "Báo cáo tiến độ xanh nhưng nhiều đầu việc phụ thuộc chưa được gỡ.",
+        "best": "Chuyển báo cáo sang quản trị đường găng, phụ thuộc và rủi ro; không tô xanh khi điều kiện chưa chốt.",
+        "tag": "Tiến độ",
+        "source": "TRUST"
+      },
+      {
+        "title": "PM giữ hòa khí",
+        "text": "Hai phòng tranh luận gay gắt, PM muốn tránh xung đột để giữ không khí.",
+        "best": "Tách dữ kiện khỏi cảm xúc, đưa về quyết định cần chốt, trách nhiệm và tiêu chí lựa chọn.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nhà thầu phụ xin linh hoạt",
+        "text": "Nhà thầu phụ xin đổi biện pháp để nhanh hơn nhưng chưa có đánh giá an toàn/chất lượng.",
+        "best": "Yêu cầu đánh giá kỹ thuật-an toàn-chất lượng, phê duyệt thay đổi và kiểm soát hiện trường trước khi triển khai.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khách gọi trực tiếp kỹ sư",
+        "text": "Khách bỏ qua PM và yêu cầu kỹ sư sửa ngay.",
+        "best": "Ghi nhận yêu cầu, đưa về kênh quản lý thay đổi, xác nhận phạm vi và phân công rõ để không loạn cam kết.",
+        "tag": "Giao tiếp",
+        "source": "TRUST"
+      },
+      {
+        "title": "Họp quá nhiều",
+        "text": "Dự án họp dày nhưng quyết định chậm.",
+        "best": "Rút họp về đúng người-đúng vấn đề-đúng quyết định, dùng action log có owner và hạn.",
+        "tag": "Daily Briefing",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sự cố nhỏ lặp lại",
+        "text": "Các lỗi nhỏ phát sinh liên tục nhưng team xử lý từng cái.",
+        "best": "Tổ chức debrief ngắn, tìm pattern lỗi, cập nhật checklist/điểm kiểm soát.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đẩy deadline xuống dưới",
+        "text": "Deadline tổng bị áp từ trên, PM định chia đều áp lực cho các nhóm.",
+        "best": "Rà soát năng lực và đường găng từng nhóm, ưu tiên việc tạo giá trị, escalation phần thiếu nguồn lực.",
+        "tag": "Leadership",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chốt miệng ngoài họp",
+        "text": "Một quyết định quan trọng được thống nhất miệng ngoài cuộc họp.",
+        "best": "Lập biên bản/xác nhận ngắn: nội dung, ảnh hưởng, người duyệt, thời điểm hiệu lực.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Rủi ro không ai nhận",
+        "text": "Một rủi ro nằm giữa thiết kế, mua hàng và thi công nên không phòng nào nhận owner.",
+        "best": "Chỉ định owner quản trị rủi ro, contributor từng phòng, mốc đóng và tiêu chí xong.",
+        "tag": "Responsibility",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khách không hài lòng",
+        "text": "Khách phàn nàn phản hồi chậm, nội bộ nói do khách thay đổi nhiều.",
+        "best": "Nhận phản hồi, đo SLA phản hồi, làm rõ điểm nghẽn và cam kết cơ chế cập nhật mới.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nguồn lực bị kéo dự án khác",
+        "text": "Nhân sự chủ chốt bị điều sang dự án khác, nguy cơ trễ.",
+        "best": "Cập nhật resource plan, đánh giá impact, đề xuất ưu tiên và phương án bù năng lực.",
+        "tag": "Nguồn lực",
+        "source": "TRUST"
+      },
+      {
+        "title": "Gần bàn giao mới thấy thiếu hồ sơ",
+        "text": "Hồ sơ nghiệm thu bị dồn cuối kỳ.",
+        "best": "Thiết lập checklist hồ sơ từ đầu, review định kỳ và gắn owner theo hạng mục.",
+        "tag": "QA/QC",
+        "source": "TRUST"
+      },
+      {
+        "title": "PM tự quyết quá nhiều",
+        "text": "PM tự xử lý mọi vướng mắc để nhanh, team ít hiểu bối cảnh.",
+        "best": "Phân loại quyết định, giao quyền có kiểm soát và chia sẻ bối cảnh để tăng năng lực team.",
+        "tag": "3G",
+        "source": "TRUST"
+      },
+      {
+        "title": "Phát sinh không có mã",
+        "text": "Chi phí phát sinh chưa được mã hóa, có nguy cơ thất thoát.",
+        "best": "Mở change/risk item, liên kết chi phí-tiến độ-phạm vi và xác nhận thẩm quyền.",
+        "tag": "Cost",
+        "source": "TRUST"
+      },
+      {
+        "title": "Rút ngắn kiểm tra",
+        "text": "Để kịp mốc, đề xuất giảm bước kiểm tra nội bộ.",
+        "best": "Chỉ tối ưu bước nếu chứng minh không làm mất kiểm soát; ưu tiên kiểm tra điểm rủi ro cao.",
+        "tag": "Quality",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thông tin nhiều phiên bản",
+        "text": "Các phòng dùng các file tiến độ khác nhau.",
+        "best": "Chốt một nguồn dữ liệu, quy tắc cập nhật, quyền chỉnh sửa và lịch freeze.",
+        "tag": "Data",
+        "source": "TRUST"
+      },
+      {
+        "title": "Escalation muộn",
+        "text": "Vấn đề đã kéo dài nhưng PM ngại báo cấp trên vì sợ bị đánh giá yếu.",
+        "best": "Escalate bằng fact, option, đề xuất quyết định và hậu quả nếu không chốt.",
+        "tag": "Escalation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sau dự án không học gì",
+        "text": "Dự án kết thúc, team chuyển ngay sang dự án mới.",
+        "best": "Debrief bắt buộc: điều giữ, điều bỏ, bài học chuẩn hóa và owner cập nhật quy trình.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      }
+    ],
+    "tender_design": [
+      {
+        "title": "Thiếu dữ liệu đầu vào",
+        "text": "HSMT thiếu thông số quan trọng nhưng deadline báo giá sát.",
+        "best": "Lập clarification, assumption, điều kiện loại trừ và rủi ro giá rõ trong hồ sơ.",
+        "tag": "Assumption",
+        "source": "TRUST"
+      },
+      {
+        "title": "Copy dự án cũ",
+        "text": "Một dự án tương tự đã làm trước đây, team muốn copy cấu hình để tiết kiệm thời gian.",
+        "best": "Dùng dự án cũ làm benchmark nhưng kiểm tra lại điều kiện kỹ thuật, tiêu chuẩn, tải, mặt bằng và rủi ro riêng.",
+        "tag": "Benchmark",
+        "source": "TRUST"
+      },
+      {
+        "title": "Giá cạnh tranh quá thấp",
+        "text": "Phương án kỹ thuật đúng nhưng giá cao; có đề xuất giảm spec để cạnh tranh.",
+        "best": "Chỉ tối ưu khi chứng minh đáp ứng yêu cầu, nêu rõ khác biệt và rủi ro; không giảm chuẩn ngầm.",
+        "tag": "Giá",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bản vẽ chưa review",
+        "text": "Bản vẽ sắp gửi khách nhưng chưa đủ review chéo.",
+        "best": "Phân loại hạng mục rủi ro cao để review bắt buộc, ghi trạng thái phát hành và phần cần kiểm soát.",
+        "tag": "Review",
+        "source": "TRUST"
+      },
+      {
+        "title": "Clarification nhạy cảm",
+        "text": "Một câu hỏi làm lộ điểm chưa hiểu của NSN, team ngại gửi khách.",
+        "best": "Viết clarification chuyên nghiệp, tập trung vào điều kiện thiết kế/giá và tác động nếu không xác nhận.",
+        "tag": "Khách hàng",
+        "source": "TRUST"
+      },
+      {
+        "title": "Điều kiện loại trừ dài",
+        "text": "Danh sách loại trừ dài khiến hồ sơ nhìn kém hấp dẫn.",
+        "best": "Giữ loại trừ cần thiết, gom nhóm rõ ràng và giải thích bằng rủi ro triển khai/chi phí.",
+        "tag": "Scope",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thiết kế tối ưu nhưng khó thi công",
+        "text": "Phương án thiết kế tiết kiệm vật tư nhưng thi công phức tạp và rủi ro tiến độ.",
+        "best": "Đánh giá tổng chi phí vòng đời: vật tư, thi công, an toàn, vận hành, rủi ro; không tối ưu một chiều.",
+        "tag": "Constructability",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mâu thuẫn bản vẽ và BOQ",
+        "text": "BOQ và bản vẽ lệch nhau trước giờ nộp.",
+        "best": "Dừng phát hành hạng mục lệch, xác định nguồn đúng, cập nhật revision và ghi rõ giả định nếu chưa chốt.",
+        "tag": "BOQ",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khách hỏi ngoài chuyên môn",
+        "text": "Khách yêu cầu trả lời nhanh một vấn đề vượt phạm vi hiểu biết.",
+        "best": "Ghi nhận, hẹn thời điểm phản hồi sau khi kiểm tra với người có thẩm quyền/chuyên môn.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thiếu phối hợp mua hàng",
+        "text": "Thiết kế chọn thiết bị nhưng chưa kiểm tra lead time.",
+        "best": "Phối hợp mua hàng lấy dữ liệu lead time, xuất xứ, bảo hành để đưa vào phương án kỹ thuật/giá.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tối ưu bằng AI",
+        "text": "Kỹ sư dùng AI tạo nội dung thuyết minh kỹ thuật.",
+        "best": "Dùng AI như trợ lý nháp, kỹ sư chịu trách nhiệm kiểm chứng tiêu chuẩn, số liệu và ngôn ngữ cam kết.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đổi tiêu chuẩn",
+        "text": "Khách gửi tiêu chuẩn mới sát hạn.",
+        "best": "Đánh giá điểm ảnh hưởng, cập nhật compliance matrix và phát hành câu hỏi/điều kiện nếu cần.",
+        "tag": "Compliance",
+        "source": "TRUST"
+      },
+      {
+        "title": "Value engineering",
+        "text": "Có đề xuất VE giúp giảm giá nhưng thay đổi giải pháp ban đầu.",
+        "best": "Trình VE theo option: lợi ích, điều kiện áp dụng, rủi ro, phần không thay đổi và xác nhận của khách.",
+        "tag": "VE",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thiết kế quá an toàn",
+        "text": "Team cộng dự phòng quá nhiều để tránh rủi ro, làm giá mất cạnh tranh.",
+        "best": "Dự phòng dựa trên dữ liệu/rủi ro cụ thể, tách contingency khỏi thiết kế kỹ thuật nếu cần.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đầu vào từ sales",
+        "text": "Sales chuyển thông tin khách qua chat rời rạc.",
+        "best": "Chuẩn hóa input sheet, yêu cầu xác nhận nguồn, ngày hiệu lực và điểm còn mở.",
+        "tag": "Input",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không muốn hỏi thêm",
+        "text": "Team sợ hỏi nhiều làm khách nghĩ NSN yếu.",
+        "best": "Hỏi đúng trọng tâm, thể hiện hiểu vấn đề và bảo vệ khả năng triển khai; không im lặng trước dữ liệu thiếu.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "File nhiều phiên bản",
+        "text": "Nhiều kỹ sư sửa file riêng, gần nộp mới gộp.",
+        "best": "Chốt cấu trúc file, owner, version, freeze time và log thay đổi.",
+        "tag": "Data",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hồ sơ đẹp nhưng khó kiểm chứng",
+        "text": "Thuyết minh trình bày tốt nhưng thiếu căn cứ tính toán.",
+        "best": "Bổ sung basis of design, nguồn dữ liệu, giả định và kiểm tra chéo nội bộ.",
+        "tag": "Evidence",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đề xuất công nghệ mới",
+        "text": "Giải pháp mới có hiệu quả nhưng team chưa có kinh nghiệm triển khai.",
+        "best": "Đề xuất pilot/điều kiện áp dụng, rủi ro, yêu cầu NCC hỗ trợ và phương án dự phòng.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sau khi thua thầu",
+        "text": "Team muốn bỏ qua vì đã mất cơ hội.",
+        "best": "Debrief nguyên nhân: giá, kỹ thuật, quan hệ, hồ sơ, dữ liệu; chuyển thành bài học cho lần sau.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      }
+    ],
+    "construction": [
+      {
+        "title": "Tự sửa bản vẽ tại hiện trường",
+        "text": "Công trường thấy bản vẽ khó thi công, nếu chờ phản hồi sẽ chậm.",
+        "best": "Gửi RFI kèm ảnh, vị trí, ảnh hưởng, phương án đề xuất và chỉ làm sau khi được xác nhận đúng thẩm quyền.",
+        "tag": "RFI",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thi công trước nghiệm thu sau",
+        "text": "Đội thi công muốn làm tiếp để giữ tiến độ, nghiệm thu nội bộ bổ sung sau.",
+        "best": "Giữ điểm dừng kiểm tra bắt buộc; nếu cần tăng tốc thì tăng nguồn lực/ca kíp có kiểm soát, không bỏ hold point.",
+        "tag": "Quality",
+        "source": "TRUST"
+      },
+      {
+        "title": "Vật tư về không đúng mã",
+        "text": "Vật tư tương đương được giao để kịp tiến độ, hồ sơ chưa duyệt.",
+        "best": "Cách ly/đánh dấu, kiểm tra submittal, lấy xác nhận kỹ thuật và QA/QC trước khi sử dụng.",
+        "tag": "Material",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nhà thầu phụ ép tiến độ",
+        "text": "Nhà thầu phụ cam kết làm nhanh hơn nếu bỏ một số bước an toàn.",
+        "best": "Không chấp thuận; yêu cầu biện pháp an toàn, phân tích rủi ro và phê duyệt trước triển khai.",
+        "tag": "Safety",
+        "source": "TRUST"
+      },
+      {
+        "title": "Xung đột mặt bằng",
+        "text": "Hai đội cùng cần một khu vực thi công trong cùng thời điểm.",
+        "best": "Điều phối lookahead, ưu tiên đường găng, phân vùng an toàn và cập nhật kế hoạch ngày.",
+        "tag": "Coordination",
+        "source": "TRUST"
+      },
+      {
+        "title": "Ảnh hiện trường gửi rời rạc",
+        "text": "Thông tin hiện trường nằm trong nhiều nhóm chat, khó truy vết.",
+        "best": "Chuẩn hóa nhật ký/ảnh theo vị trí-ngày-hạng mục-người chụp và liên kết với issue log.",
+        "tag": "Data",
+        "source": "TRUST"
+      },
+      {
+        "title": "Công nhân phản ánh nguy cơ",
+        "text": "Công nhân báo nguy cơ nhưng đội trưởng nói vẫn xử lý được.",
+        "best": "Dừng xem xét nguy cơ, lắng nghe người trực tiếp làm, xác nhận biện pháp trước khi tiếp tục.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bàn giao gấp",
+        "text": "Khách muốn bàn giao sớm, một số punch list nhỏ còn lại.",
+        "best": "Phân loại punch list theo ảnh hưởng, thống nhất điều kiện bàn giao, owner và deadline đóng từng mục.",
+        "tag": "Handover",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thiết bị lỗi khi chạy thử",
+        "text": "Chạy thử phát hiện lỗi nhưng NCC nói thông số vẫn trong ngưỡng.",
+        "best": "Ghi nhận dữ liệu test, đối chiếu tiêu chuẩn/hợp đồng, yêu cầu phương án xử lý bằng văn bản.",
+        "tag": "Testing",
+        "source": "TRUST"
+      },
+      {
+        "title": "Công trường đổ lỗi thiết kế",
+        "text": "Vướng mắc phát sinh, đội thi công nói do thiết kế không sát thực tế.",
+        "best": "Tách fact thiết kế-hiện trường, đánh giá constructability, thống nhất hành động và bài học phối hợp sớm.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tăng ca kéo dài",
+        "text": "Tiến độ trễ, đề xuất tăng ca liên tục 2 tuần.",
+        "best": "Đánh giá sức khỏe/an toàn/chất lượng, ưu tiên lại công việc, bổ sung nguồn lực hoặc thương lượng mốc thay vì chỉ ép OT.",
+        "tag": "People",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không cập nhật as-built",
+        "text": "Đội thi công thay đổi nhỏ nhưng chưa cập nhật as-built.",
+        "best": "Cập nhật ngay log thay đổi, ảnh, vị trí và bản vẽ as-built để tránh mất dữ liệu vận hành.",
+        "tag": "As-built",
+        "source": "TRUST"
+      },
+      {
+        "title": "Biện pháp tạm",
+        "text": "Cần làm biện pháp tạm để cứu tiến độ.",
+        "best": "Thiết kế biện pháp tạm có giới hạn sử dụng, người phê duyệt, kiểm tra an toàn và kế hoạch tháo bỏ.",
+        "tag": "Temporary works",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mưa ảnh hưởng thi công",
+        "text": "Thời tiết làm chậm tiến độ, đội muốn ghi chung là bất khả kháng.",
+        "best": "Ghi nhận dữ liệu thời tiết, ảnh hưởng thực tế, việc có thể làm thay thế và cập nhật kế hoạch phục hồi.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "NCC giao thiếu phụ kiện",
+        "text": "Thiết bị chính đã tới nhưng thiếu phụ kiện lắp đặt.",
+        "best": "Cập nhật thiếu hụt vào procurement log, đánh giá ảnh hưởng đường găng và chốt phương án thay thế/đẩy hàng.",
+        "tag": "Procurement",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nghiệm thu nội bộ hình thức",
+        "text": "Checklist được tick nhanh nhưng hiện trường chưa kiểm đủ.",
+        "best": "Gắn checklist với bằng chứng ảnh/test, mẫu kiểm tra và người chịu trách nhiệm thực tế.",
+        "tag": "QA/QC",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tranh cãi với khách tại site",
+        "text": "Khách phản ứng gay gắt về chất lượng thi công.",
+        "best": "Giữ thái độ chuyên nghiệp, ghi nhận fact, khoanh vùng vấn đề, hẹn phản hồi có bằng chứng và phương án.",
+        "tag": "Communication",
+        "source": "TRUST"
+      },
+      {
+        "title": "Lệnh miệng thay đổi",
+        "text": "Đại diện khách yêu cầu thay đổi trực tiếp ngoài hiện trường.",
+        "best": "Ghi nhận yêu cầu, dừng triển khai phần thay đổi cho tới khi có xác nhận phạm vi/chi phí/tiến độ.",
+        "tag": "Change",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mất vệ sinh công trường",
+        "text": "Khu vực thi công bừa bộn nhưng không ảnh hưởng kỹ thuật ngay.",
+        "best": "Xử lý housekeeping như một phần an toàn, hình ảnh chuyên nghiệp và năng suất thi công.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sau sự cố",
+        "text": "Một sự cố nhỏ đã được khắc phục, đội muốn bỏ qua vì không thiệt hại.",
+        "best": "Debrief ngắn về nguyên nhân, biện pháp phòng ngừa và cập nhật toolbox talk.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      }
+    ],
+    "procurement": [
+      {
+        "title": "Chọn NCC giá thấp",
+        "text": "NCC mới chào thấp hơn nhiều nhưng thiếu hồ sơ năng lực.",
+        "best": "Đánh giá tổng giá trị bằng năng lực, chất lượng, tiến độ, bảo hành, rủi ro và điều kiện thương mại.",
+        "tag": "Supplier",
+        "source": "TRUST"
+      },
+      {
+        "title": "Lead time không chắc",
+        "text": "NCC hứa giao nhanh qua điện thoại, chưa có xác nhận chính thức.",
+        "best": "Yêu cầu xác nhận bằng văn bản, điều kiện giao, mốc sản xuất và phương án dự phòng.",
+        "tag": "Lead time",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thay đổi xuất xứ",
+        "text": "NCC đề nghị đổi xuất xứ tương đương để kịp hàng.",
+        "best": "Kiểm tra compliance, hợp đồng, bảo hành, phê duyệt kỹ thuật và khách trước khi chấp nhận.",
+        "tag": "Compliance",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mua hàng giữ thông tin",
+        "text": "Mua hàng biết một mã hàng có nguy cơ trễ nhưng chờ chắc chắn mới báo PM.",
+        "best": "Báo sớm trạng thái rủi ro, xác suất, ảnh hưởng và option thay thế để PM điều phối.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Quan hệ với NCC quen",
+        "text": "NCC quen xử lý nhanh nhưng giá không cạnh tranh.",
+        "best": "Đưa vào so sánh minh bạch, tách lợi thế phối hợp khỏi quyết định giá và rủi ro.",
+        "tag": "Integrity",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đàm phán ép giá",
+        "text": "Có thể ép NCC giảm giá sâu nhưng nguy cơ họ cắt chất lượng dịch vụ.",
+        "best": "Đàm phán theo tổng giá trị, SLA, bảo hành và điều kiện thực hiện; không tạo rủi ro ẩn.",
+        "tag": "Value",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hàng về thiếu chứng chỉ",
+        "text": "Vật tư đã tới site nhưng thiếu CO/CQ hoặc test report.",
+        "best": "Không hợp thức hóa sau; yêu cầu bổ sung, cách ly nếu cần và thông tin cho QA/QC/PM.",
+        "tag": "Document",
+        "source": "TRUST"
+      },
+      {
+        "title": "NCC báo phát sinh",
+        "text": "NCC báo tăng giá do thay đổi phạm vi nhưng hồ sơ không rõ.",
+        "best": "Đối chiếu PO/hợp đồng/phạm vi, yêu cầu căn cứ và phối hợp PM xác nhận change.",
+        "tag": "Change",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đặt hàng trước phê duyệt",
+        "text": "Để kịp tiến độ, có đề xuất đặt hàng trước khi submittal được duyệt.",
+        "best": "Chỉ đặt khi có phê duyệt rủi ro đúng thẩm quyền, điều kiện hủy/đổi và ghi rõ trách nhiệm.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "Danh sách NCC ít",
+        "text": "Chỉ có một NCC đáp ứng, nguy cơ phụ thuộc.",
+        "best": "Ghi rõ lý do single source, rủi ro, điều kiện kiểm soát và kế hoạch phát triển NCC thay thế.",
+        "tag": "Strategy",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mua theo thói quen",
+        "text": "Một mặt hàng thường mua cùng hãng cũ, ít ai kiểm tra lại.",
+        "best": "Định kỳ benchmark giá/chất lượng/dịch vụ để bảo vệ giá trị và Innovation.",
+        "tag": "Benchmark",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hàng gấp ngoài quy trình",
+        "text": "Công trường yêu cầu mua gấp không đủ thông tin kỹ thuật.",
+        "best": "Yêu cầu thông tin tối thiểu, xác nhận người chịu trách nhiệm kỹ thuật và ghi rõ rủi ro mua gấp.",
+        "tag": "Urgent",
+        "source": "TRUST"
+      },
+      {
+        "title": "Điều khoản thanh toán bất lợi",
+        "text": "NCC yêu cầu tạm ứng cao để giữ giá.",
+        "best": "Đánh giá năng lực, bảo lãnh, milestone giao hàng và rủi ro tài chính trước khi đề xuất.",
+        "tag": "Finance",
+        "source": "TRUST"
+      },
+      {
+        "title": "Phản hồi chậm từ kỹ thuật",
+        "text": "Mua hàng chờ kỹ thuật duyệt mã hàng nhưng quá hạn.",
+        "best": "Escalate bằng danh sách item, impact tiến độ, quyết định cần chốt và deadline.",
+        "tag": "Escalation",
+        "source": "TRUST"
+      },
+      {
+        "title": "NCC làm sai cam kết",
+        "text": "NCC giao trễ nhiều lần nhưng quan hệ tốt.",
+        "best": "Ghi nhận KPI NCC, áp dụng điều khoản hợp đồng và debrief để quyết định tiếp tục/loại bỏ.",
+        "tag": "Performance",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tối ưu tồn kho",
+        "text": "Mua dư để tránh thiếu hàng nhưng làm tăng tồn kho.",
+        "best": "Tính nhu cầu, lead time, rủi ro thiếu hàng và chi phí tồn kho; không mua dư theo cảm tính.",
+        "tag": "Inventory",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mua vật tư thay thế",
+        "text": "Vật tư đúng mã không còn hàng, có mã thay thế gần tương đương.",
+        "best": "Phối hợp kỹ thuật-QA/khách đánh giá tương đương trước khi mua.",
+        "tag": "Substitution",
+        "source": "TRUST"
+      },
+      {
+        "title": "Email báo giá mập mờ",
+        "text": "Báo giá NCC thiếu điều kiện bảo hành/giao hàng.",
+        "best": "Yêu cầu làm rõ điều kiện thương mại-kỹ thuật trước khi so sánh và trình duyệt.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Xung đột lợi ích",
+        "text": "Một NCC có quan hệ cá nhân với nhân sự nội bộ.",
+        "best": "Minh bạch xung đột lợi ích, loại người liên quan khỏi quyết định nếu cần và lưu hồ sơ đánh giá.",
+        "tag": "Integrity",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sau mua không học",
+        "text": "Một đơn hàng gây trễ nhưng không ai cập nhật dữ liệu NCC.",
+        "best": "Cập nhật supplier database, nguyên nhân trễ và bài học cho lần mua tiếp theo.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      }
+    ],
+    "finance": [
+      {
+        "title": "Hồ sơ thanh toán thiếu xác nhận",
+        "text": "Nhà cung cấp cần thanh toán để giữ tiến độ nhưng hồ sơ thiếu xác nhận site.",
+        "best": "Nêu rõ phần thiếu, deadline bổ sung, impact nếu chậm và kéo PM/site vào xử lý đúng thẩm quyền.",
+        "tag": "Payment",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tạm ứng gấp",
+        "text": "Dự án cần tạm ứng nhanh cho NCC, điều kiện bảo lãnh chưa đủ.",
+        "best": "Đánh giá rủi ro tài chính, điều kiện bảo lãnh/đảm bảo và xin phê duyệt đúng thẩm quyền.",
+        "tag": "Advance",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chi phí phát sinh chưa rõ",
+        "text": "PM gửi chi phí phát sinh nhưng thiếu căn cứ change order.",
+        "best": "Tạm ghi nhận rủi ro chi phí, yêu cầu hồ sơ căn cứ và phối hợp PM chốt phạm vi phát sinh.",
+        "tag": "Change cost",
+        "source": "TRUST"
+      },
+      {
+        "title": "Công nợ khách hàng",
+        "text": "Khách chậm thanh toán nhưng team kinh doanh ngại nhắc vì sợ mất quan hệ.",
+        "best": "Phối hợp kinh doanh nhắc công nợ bằng dữ kiện hợp đồng, trạng thái hồ sơ và phương án giữ quan hệ.",
+        "tag": "Receivable",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hạch toán cho đẹp kỳ",
+        "text": "Có đề xuất ghi nhận doanh thu/chi phí để báo cáo kỳ nhìn tốt hơn.",
+        "best": "Tuân thủ nguyên tắc kế toán, minh bạch điều kiện ghi nhận và không làm đẹp số liệu trái bản chất.",
+        "tag": "Integrity",
+        "source": "TRUST"
+      },
+      {
+        "title": "Ngân sách dự án bị vượt",
+        "text": "Chi phí thực tế vượt budget nhưng PM chưa cập nhật forecast.",
+        "best": "Cảnh báo sớm, yêu cầu forecast mới, phân loại nguyên nhân và đề xuất biện pháp kiểm soát.",
+        "tag": "Budget",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thanh toán ngoài quy trình",
+        "text": "Một khoản nhỏ cần thanh toán gấp nhưng thiếu PO.",
+        "best": "Không bỏ quy trình; dùng luồng phê duyệt ngoại lệ có lý do, hạn mức, người chịu trách nhiệm và hồ sơ bổ sung.",
+        "tag": "Exception",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chứng từ nhiều lần sai",
+        "text": "Một bộ phận thường xuyên gửi chứng từ sai định dạng.",
+        "best": "Chuẩn hóa checklist/form mẫu, hướng dẫn ngắn và theo dõi tỷ lệ sai để cải tiến.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Dữ liệu chi phí trễ",
+        "text": "Kế toán nhận dữ liệu muộn nên báo cáo quản trị thiếu cập nhật.",
+        "best": "Thiết lập lịch cut-off, owner dữ liệu và cảnh báo ảnh hưởng khi nộp chậm.",
+        "tag": "Data",
+        "source": "TRUST"
+      },
+      {
+        "title": "NCC đòi phí phát sinh",
+        "text": "NCC đòi phí lưu kho do NSN chậm nghiệm thu.",
+        "best": "Đối chiếu timeline, trách nhiệm từng bên, căn cứ hợp đồng và phối hợp PM xử lý bằng fact.",
+        "tag": "Claim",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tối ưu dòng tiền",
+        "text": "Có thể trì hoãn thanh toán hợp lệ để giữ dòng tiền ngắn hạn.",
+        "best": "Cân bằng dòng tiền với chữ tín nhà cung cấp, điều khoản hợp đồng và rủi ro tiến độ dự án.",
+        "tag": "Cashflow",
+        "source": "TRUST"
+      },
+      {
+        "title": "Báo cáo quản trị khó hiểu",
+        "text": "Báo cáo tài chính đúng nhưng các PM không dùng được để quyết định.",
+        "best": "Thiết kế dashboard chi phí theo logic dự án: budget, actual, committed, forecast, risk.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Số liệu lệch giữa phòng ban",
+        "text": "PM, mua hàng và kế toán có ba số chi phí khác nhau.",
+        "best": "Chốt một nguồn dữ liệu, định nghĩa số liệu và lịch đối soát định kỳ.",
+        "tag": "Reconciliation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Kiểm soát hay hỗ trợ",
+        "text": "PM nói kế toán quá cứng, làm chậm dự án.",
+        "best": "Giải thích chuẩn kiểm soát, đồng thời đề xuất luồng hồ sơ tối thiểu để vừa đúng vừa nhanh.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hoàn ứng chậm",
+        "text": "Nhân sự chậm hoàn ứng nhiều lần nhưng công việc hiện trường bận.",
+        "best": "Nhắc theo dữ kiện, hỗ trợ mẫu hồ sơ, đặt mốc rõ và escalation nếu tái diễn.",
+        "tag": "Responsibility",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chi phí nhỏ lặp lại",
+        "text": "Nhiều khoản nhỏ ngoài kế hoạch xuất hiện liên tục.",
+        "best": "Không bỏ qua vì nhỏ; gom nhóm pattern, tìm nguyên nhân và cập nhật budget/control.",
+        "tag": "Root cause",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thuế và hợp đồng",
+        "text": "Điều khoản thanh toán mới có rủi ro thuế nhưng thương mại muốn ký nhanh.",
+        "best": "Cảnh báo rủi ro thuế bằng ngôn ngữ quyết định, đề xuất điều chỉnh trước khi ký.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sai sót đã sửa",
+        "text": "Một sai sót chứng từ đã sửa xong, team muốn không nhắc lại.",
+        "best": "Debrief nguyên nhân sai, cập nhật checklist và chia sẻ bài học không nêu đích danh.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      },
+      {
+        "title": "Kế toán bị xem là hậu cần",
+        "text": "Bộ phận khác chỉ gọi kế toán khi cần thanh toán gấp.",
+        "best": "Chủ động tham gia sớm các mốc hợp đồng/PO/payment để giảm nghẽn cuối kỳ.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bảo mật dữ liệu",
+        "text": "Có người xin file lương/chi phí chi tiết để tiện tổng hợp.",
+        "best": "Kiểm tra quyền truy cập, mục đích sử dụng, phạm vi dữ liệu và phương án ẩn thông tin nhạy cảm.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      }
+    ],
+    "hr_admin": [
+      {
+        "title": "Onboarding người mới",
+        "text": "Người mới nhận nhiều tài liệu nhưng không biết ưu tiên học gì trước.",
+        "best": "Thiết kế lộ trình 30-60-90 ngày, mentor, checklist năng lực và mốc review.",
+        "tag": "Onboarding",
+        "source": "TRUST"
+      },
+      {
+        "title": "Phản ánh quá tải",
+        "text": "Nhân sự phản ánh quá tải, quản lý nói đó là áp lực bình thường.",
+        "best": "Làm rõ khối lượng, ưu tiên, thời lượng, rủi ro sức khỏe và cùng quản lý chốt hỗ trợ.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Xung đột nội bộ",
+        "text": "Hai nhân sự mâu thuẫn, mỗi bên kể một câu chuyện khác nhau.",
+        "best": "Thu thập fact từ nhiều phía, tách cảm xúc-vấn đề và điều phối đối thoại theo chuẩn ứng xử.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đào tạo hình thức",
+        "text": "Khóa đào tạo được tổ chức đủ nhưng hành vi không thay đổi.",
+        "best": "Gắn đào tạo với case thật, bài tập áp dụng, quản lý theo dõi và chỉ số sau đào tạo.",
+        "tag": "3G",
+        "source": "TRUST"
+      },
+      {
+        "title": "Kỷ luật hay phát triển",
+        "text": "Một nhân sự vi phạm quy trình lần đầu, chưa gây hậu quả.",
+        "best": "Phân loại mức độ, trao đổi nguyên nhân, yêu cầu cam kết sửa và theo dõi; không bỏ qua cũng không phạt cảm tính.",
+        "tag": "Responsibility",
+        "source": "TRUST"
+      },
+      {
+        "title": "Truyền thông chính sách",
+        "text": "Chính sách mới bị hiểu sai trong các nhóm chat.",
+        "best": "Truyền thông lại bằng câu hỏi thường gặp, ví dụ tình huống và kênh hỏi chính thức.",
+        "tag": "Communication",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tuyển nhanh",
+        "text": "Bộ phận cần người gấp, muốn hạ tiêu chuẩn tuyển dụng.",
+        "best": "Phân biệt tiêu chuẩn bắt buộc/có thể đào tạo, đánh giá rủi ro và phương án hỗ trợ sau tuyển.",
+        "tag": "Recruitment",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nhân sự giỏi muốn nghỉ",
+        "text": "Một người giỏi muốn nghỉ vì không thấy cơ hội phát triển.",
+        "best": "Phỏng vấn giữ chân bằng nhu cầu thật, lộ trình phát triển, điều kiện công việc và tính phù hợp hai bên.",
+        "tag": "Retention",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hành chính bị yêu cầu gấp",
+        "text": "Các phòng gửi yêu cầu hành chính thiếu thông tin nhưng muốn xử lý ngay.",
+        "best": "Hỗ trợ phần khẩn cấp, đồng thời chuẩn hóa form yêu cầu, SLA và đầu mối.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Văn hóa góp ý",
+        "text": "Nhân viên ngại góp ý vì sợ bị đánh giá tiêu cực.",
+        "best": "Tạo kênh góp ý an toàn, phản hồi minh bạch và công bố cải tiến đã thực hiện.",
+        "tag": "Culture",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đánh giá cuối năm",
+        "text": "Quản lý đánh giá nhân sự chủ yếu theo cảm nhận.",
+        "best": "Yêu cầu dữ kiện: mục tiêu, kết quả, hành vi TRUST, phản hồi liên quan và bằng chứng.",
+        "tag": "Performance",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nội quy bị xem nhẹ",
+        "text": "Một quy định công sở bị vi phạm lặp lại nhưng mọi người xem là chuyện nhỏ.",
+        "best": "Nhắc lại mục đích quy định, tác động tới hình ảnh/hệ thống và xử lý nhất quán.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hoạt động gắn kết",
+        "text": "Hoạt động nội bộ vui nhưng ít liên quan đến công việc.",
+        "best": "Thiết kế hoạt động gắn kết có mục tiêu: hiểu nhau, phối hợp, giá trị TRUST và bài học hành vi.",
+        "tag": "Gắn",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mentor quá bận",
+        "text": "Mentor được chỉ định nhưng không có thời gian kèm người mới.",
+        "best": "Điều chỉnh mentor hoặc mốc hỗ trợ, chia nhỏ nội dung kèm và đo tiến độ onboarding.",
+        "tag": "3G",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chính sách không sát thực tế",
+        "text": "Một chính sách nhân sự gây khó cho dự án đặc thù.",
+        "best": "Thu thập case, đánh giá rủi ro lạm dụng và đề xuất ngoại lệ có điều kiện.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bảo mật thông tin nhân sự",
+        "text": "Một quản lý hỏi thông tin cá nhân nhạy cảm của nhân viên.",
+        "best": "Kiểm tra mục đích/quyền truy cập, chỉ chia sẻ tối thiểu theo chính sách và bảo mật dữ liệu.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Phản hồi tiêu cực",
+        "text": "Một nhân sự phản hồi gay gắt về công ty trên kênh nội bộ.",
+        "best": "Ghi nhận vấn đề, mời trao đổi fact, không phản ứng phòng thủ và xử lý theo chuẩn ứng xử.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Năng lực quản lý tuyến giữa",
+        "text": "Nhiều trưởng nhóm giỏi chuyên môn nhưng yếu giao việc.",
+        "best": "Tổ chức huấn luyện 3G bằng tình huống thật, coaching sau mỗi lần giao việc quan trọng.",
+        "tag": "3G",
+        "source": "TRUST"
+      },
+      {
+        "title": "Quy trình phê duyệt chậm",
+        "text": "Hành chính giữ nhiều bước duyệt khiến việc chậm.",
+        "best": "Rà soát bước tạo giá trị/không tạo giá trị, đề xuất phân quyền và ngưỡng kiểm soát.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sau sự kiện nội bộ",
+        "text": "Sự kiện văn hóa xong nhưng không có hành động tiếp theo.",
+        "best": "Chốt 1-2 hành vi cam kết, owner theo dõi và đo lại sau một thời gian.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      }
+    ],
+    "safety_quality": [
+      {
+        "title": "Dừng việc mất an toàn",
+        "text": "Đội thi công phản ứng khi an toàn yêu cầu dừng việc.",
+        "best": "Giải thích rủi ro bằng fact, chốt điều kiện tiếp tục và hỗ trợ phương án để giảm ảnh hưởng tiến độ.",
+        "tag": "Safety",
+        "source": "TRUST"
+      },
+      {
+        "title": "Lỗi nhỏ trước bàn giao",
+        "text": "Một lỗi chất lượng nhỏ có thể sửa sau bàn giao.",
+        "best": "Đánh giá ảnh hưởng, ghi nhận punch list, xác nhận điều kiện bàn giao và deadline xử lý.",
+        "tag": "Quality",
+        "source": "TRUST"
+      },
+      {
+        "title": "Checklist tick nhanh",
+        "text": "Checklist QA được tick nhưng thiếu bằng chứng kiểm tra.",
+        "best": "Yêu cầu bằng chứng ảnh/test/mẫu, người kiểm và thời điểm; checklist phải phản ánh kiểm soát thật.",
+        "tag": "QA",
+        "source": "TRUST"
+      },
+      {
+        "title": "PCCC bị xem là thủ tục",
+        "text": "Hạng mục PCCC được xem là hồ sơ giấy, không ảnh hưởng tiến độ thi công.",
+        "best": "Đưa PCCC vào risk/control plan thực tế, kiểm tra điều kiện hiện trường và hồ sơ tương ứng.",
+        "tag": "PCCC",
+        "source": "TRUST"
+      },
+      {
+        "title": "NCC xin bỏ test",
+        "text": "NCC xin bỏ một bài test vì đã test tại nhà máy.",
+        "best": "Đối chiếu yêu cầu hợp đồng/tiêu chuẩn, chấp nhận thay thế chỉ khi tương đương và có căn cứ.",
+        "tag": "Testing",
+        "source": "TRUST"
+      },
+      {
+        "title": "An toàn bị gọi là cản trở",
+        "text": "Công trường nói an toàn làm chậm tiến độ.",
+        "best": "Chuyển vai trò từ kiểm tra cuối sang tham gia lập biện pháp sớm để phòng ngừa nghẽn.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sự cố suýt xảy ra",
+        "text": "Near-miss không gây thiệt hại, đội muốn bỏ qua.",
+        "best": "Ghi nhận near-miss, phân tích nguyên nhân và toolbox talk để ngăn sự cố thật.",
+        "tag": "Near miss",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không đồng nhất tiêu chuẩn",
+        "text": "Khách, thiết kế và thi công hiểu khác nhau về tiêu chuẩn nghiệm thu.",
+        "best": "Chốt acceptance criteria bằng văn bản, mẫu minh họa và áp dụng nhất quán.",
+        "tag": "Standard",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hồ sơ chất lượng trễ",
+        "text": "Hồ sơ QA/QC bị dồn cuối dự án.",
+        "best": "Lập ITP/checklist hồ sơ từ đầu, review định kỳ theo giai đoạn và owner.",
+        "tag": "ITP",
+        "source": "TRUST"
+      },
+      {
+        "title": "Áp lực ký nghiệm thu",
+        "text": "Có áp lực ký nghiệm thu dù còn điểm chưa rõ.",
+        "best": "Ký theo đúng phạm vi đã kiểm, ghi rõ tồn tại/điều kiện; không ký bao khi chưa đủ căn cứ.",
+        "tag": "Integrity",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mẫu vật tư chưa duyệt",
+        "text": "Vật tư về site nhưng mẫu/submittal chưa duyệt.",
+        "best": "Cách ly, kiểm tra hồ sơ và chỉ cho sử dụng sau phê duyệt đúng thẩm quyền.",
+        "tag": "Material",
+        "source": "TRUST"
+      },
+      {
+        "title": "Biện pháp an toàn cũ",
+        "text": "Đội dùng biện pháp cũ cho điều kiện site mới.",
+        "best": "Yêu cầu JSA/RA cập nhật theo điều kiện thực tế, không dùng mẫu cũ máy móc.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "Ảnh nghiệm thu không rõ",
+        "text": "Ảnh nghiệm thu thiếu vị trí/ngày/người thực hiện.",
+        "best": "Chuẩn hóa quy tắc ảnh nghiệm thu để truy vết và bảo vệ chất lượng hồ sơ.",
+        "tag": "Data",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khách bắt lỗi gay gắt",
+        "text": "Khách bắt lỗi chất lượng trước nhiều bên.",
+        "best": "Giữ bình tĩnh, ghi fact, khoanh vùng, cam kết phản hồi bằng phương án và thời hạn.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đào tạo an toàn hình thức",
+        "text": "Toolbox talk đọc nhanh cho đủ thủ tục.",
+        "best": "Đưa tình huống thật, kiểm tra hiểu và liên kết với công việc trong ngày.",
+        "tag": "Gắn",
+        "source": "TRUST"
+      },
+      {
+        "title": "Phản ánh từ công nhân",
+        "text": "Công nhân nêu chất lượng vật tư có vấn đề nhưng kỹ sư bỏ qua.",
+        "best": "Lắng nghe, kiểm tra mẫu/lot và phản hồi kết quả; người trực tiếp làm là nguồn dữ liệu quan trọng.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không muốn lập NCR",
+        "text": "Team ngại lập NCR vì sợ xấu báo cáo.",
+        "best": "Lập NCR để minh bạch và cải tiến; đánh giá tốt/xấu ở cách xử lý, không ở việc che lỗi.",
+        "tag": "TRUST",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đánh giá nhà thầu phụ",
+        "text": "Nhà thầu phụ hoàn thành đúng tiến độ nhưng lỗi sửa nhiều.",
+        "best": "Đánh giá cả tiến độ, chất lượng, an toàn, hồ sơ và tinh thần phối hợp.",
+        "tag": "Supplier",
+        "source": "TRUST"
+      },
+      {
+        "title": "Cải tiến kiểm tra",
+        "text": "Có thể dùng biểu mẫu số để giảm lỗi QA.",
+        "best": "Pilot trên một hạng mục, đo thời gian/lỗi/truy vết rồi chuẩn hóa nếu hiệu quả.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sau audit",
+        "text": "Audit phát hiện nhiều điểm không phù hợp, đội chỉ sửa bằng chứng.",
+        "best": "Xử lý nguyên nhân gốc, cập nhật quy trình/đào tạo và kiểm tra hiệu lực sau khắc phục.",
+        "tag": "Audit",
+        "source": "TRUST"
+      }
+    ],
+    "business": [
+      {
+        "title": "Cam kết vượt năng lực",
+        "text": "Khách muốn tiến độ rất gấp để ký hợp đồng.",
+        "best": "Cam kết có điều kiện sau khi xác nhận nguồn lực, phạm vi, giả định và rủi ro với nội bộ.",
+        "tag": "Commitment",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chiều khách ngoài phạm vi",
+        "text": "Khách thân thiết nhờ làm thêm không tính phí.",
+        "best": "Làm rõ giá trị hỗ trợ, tác động và thẩm quyền; đề xuất hỗ trợ có kiểm soát.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thông tin khách rời rạc",
+        "text": "Thông tin nhu cầu khách nằm trong chat cá nhân.",
+        "best": "Chuẩn hóa brief khách hàng: nhu cầu, tiêu chí thắng, rủi ro, người quyết định và mốc thời gian.",
+        "tag": "Input",
+        "source": "TRUST"
+      },
+      {
+        "title": "Giữ quan hệ bằng hứa miệng",
+        "text": "Khách hỏi một cam kết kỹ thuật trong buổi gặp.",
+        "best": "Ghi nhận và hẹn phản hồi sau khi xác nhận kỹ thuật; không hứa miệng ngoài năng lực kiểm soát.",
+        "tag": "TRUST",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khách phàn nàn chậm phản hồi",
+        "text": "Nội bộ nói do khách thay đổi liên tục.",
+        "best": "Nhận phản hồi, đo điểm nghẽn phản hồi và thiết lập cơ chế cập nhật định kỳ.",
+        "tag": "Customer",
+        "source": "TRUST"
+      },
+      {
+        "title": "Giá thấp để thắng",
+        "text": "Có đề xuất giảm giá sâu, kỳ vọng bù bằng phát sinh.",
+        "best": "Không dùng chiến lược mập mờ; minh bạch phạm vi, giả định và điều kiện phát sinh.",
+        "tag": "Integrity",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khách hỏi lỗi nội bộ",
+        "text": "Khách nghe thông tin về sự cố nội bộ và hỏi trực tiếp.",
+        "best": "Phản hồi trung thực trong phạm vi phù hợp: fact, ảnh hưởng, biện pháp và người phụ trách.",
+        "tag": "Communication",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chọn khách hàng",
+        "text": "Một khách có lịch sử ép tiến độ/thanh toán nhưng dự án hấp dẫn.",
+        "best": "Đánh giá rủi ro khách hàng, điều kiện hợp đồng và cơ chế bảo vệ trước khi đề xuất tham gia.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chuyển giao sau ký",
+        "text": "Sales ký xong chuyển thông tin thiếu cho PM.",
+        "best": "Làm handover chuẩn: scope, cam kết, giả định, rủi ro, lịch sử trao đổi và stakeholder.",
+        "tag": "Handover",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nói quá năng lực",
+        "text": "Đối thủ đang nói mạnh, sales muốn nhấn NSN làm được tất cả.",
+        "best": "Trình bày năng lực bằng bằng chứng, case phù hợp và giới hạn rõ ràng.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Phản hồi RFQ thiếu dữ liệu",
+        "text": "Khách gửi RFQ sơ sài nhưng muốn giá nhanh.",
+        "best": "Phản hồi bằng câu hỏi then chốt, khoảng giá/option có điều kiện nếu cần.",
+        "tag": "Clarification",
+        "source": "TRUST"
+      },
+      {
+        "title": "Quan hệ cá nhân",
+        "text": "Một quyết định của khách phụ thuộc vào quan hệ cá nhân.",
+        "best": "Giữ quan hệ chuyên nghiệp, củng cố bằng năng lực, minh bạch và giá trị thật.",
+        "tag": "TRUST",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đổi yêu cầu phút cuối",
+        "text": "Khách đổi yêu cầu sát giờ nộp.",
+        "best": "Xác nhận thay đổi, đánh giá impact và đề xuất nộp theo phase/option.",
+        "tag": "Change",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khi thua cơ hội",
+        "text": "Khách không chọn NSN, team muốn bỏ qua.",
+        "best": "Xin feedback, debrief lý do và cập nhật bài học cho pipeline tiếp theo.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      },
+      {
+        "title": "Marketing nội dung",
+        "text": "Muốn truyền thông năng lực dự án nhưng có dữ liệu khách nhạy cảm.",
+        "best": "Kiểm tra quyền sử dụng thông tin, ẩn dữ liệu nhạy cảm và xin xác nhận nếu cần.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Ưu tiên deal lớn",
+        "text": "Deal lớn làm team bỏ bê khách nhỏ đang chăm sóc.",
+        "best": "Phân tầng ưu tiên minh bạch, không phá cam kết phản hồi tối thiểu với khách hiện hữu.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Khách yêu cầu giảm chất lượng",
+        "text": "Khách muốn chọn phương án rẻ hơn nhưng có rủi ro vận hành.",
+        "best": "Giải thích rủi ro vòng đời, đưa option và khuyến nghị có căn cứ.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Dữ liệu thị trường",
+        "text": "Sales có cảm nhận thị trường nhưng chưa có dữ liệu.",
+        "best": "Ghi nhận insight, kiểm chứng bằng pipeline/đối thủ/khách hàng và chia sẻ cho nội bộ.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Hợp đồng điều khoản bất lợi",
+        "text": "Khách muốn điều khoản phạt nặng nhưng giá không bù rủi ro.",
+        "best": "Đàm phán dựa trên phân tích rủi ro, giá trị và năng lực kiểm soát.",
+        "tag": "Contract",
+        "source": "TRUST"
+      },
+      {
+        "title": "Niềm tin sau lỗi",
+        "text": "NSN từng có lỗi với khách, nay có cơ hội mới.",
+        "best": "Chủ động nêu bài học, biện pháp đã sửa và cách kiểm soát mới để xây lại niềm tin.",
+        "tag": "Trust",
+        "source": "TRUST"
+      }
+    ],
+    "technology": [
+      {
+        "title": "Tool mới chưa chuẩn hóa",
+        "text": "Một công cụ AI giúp nhanh nhưng kết quả chưa ổn định.",
+        "best": "Pilot có phạm vi, quy tắc kiểm chứng, người chịu trách nhiệm và tiêu chí nhân rộng.",
+        "tag": "AI",
+        "source": "TRUST"
+      },
+      {
+        "title": "Dữ liệu phân mảnh",
+        "text": "Mỗi phòng có file quản lý riêng, dữ liệu không khớp.",
+        "best": "Thiết kế nguồn dữ liệu chuẩn, quyền cập nhật, định nghĩa chỉ số và cơ chế đối soát.",
+        "tag": "Data",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tự động hóa quy trình lỗi",
+        "text": "Một quy trình thủ công có nhiều lỗi, nhưng chưa ai muốn đổi.",
+        "best": "Chọn use case đau nhất, làm MVP nhỏ, đo thời gian/lỗi và huấn luyện người dùng.",
+        "tag": "Automation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bảo mật khi dùng AI",
+        "text": "Nhân sự đưa dữ liệu khách hàng lên công cụ AI bên ngoài.",
+        "best": "Ban hành hướng dẫn dữ liệu được/không được đưa lên AI, phương án ẩn danh và kiểm soát truy cập.",
+        "tag": "Security",
+        "source": "TRUST"
+      },
+      {
+        "title": "ERP bị phản kháng",
+        "text": "Người dùng phàn nàn hệ thống mới khó dùng hơn Excel.",
+        "best": "Gắn với quy trình thật, chỉnh điểm nghẽn, đào tạo theo vai trò và đo adoption.",
+        "tag": "Change",
+        "source": "TRUST"
+      },
+      {
+        "title": "Dashboard đẹp nhưng không dùng",
+        "text": "Dashboard nhiều biểu đồ nhưng quản lý vẫn hỏi Excel.",
+        "best": "Thiết kế lại theo quyết định cần ra, KPI owner và dữ liệu đáng tin.",
+        "tag": "Dashboard",
+        "source": "TRUST"
+      },
+      {
+        "title": "BIM/Model sai dữ liệu",
+        "text": "Mô hình đẹp nhưng thông tin thiết bị thiếu chuẩn.",
+        "best": "Chuẩn hóa LOD/LOI, quy tắc nhập liệu và kiểm tra chất lượng model.",
+        "tag": "BIM",
+        "source": "TRUST"
+      },
+      {
+        "title": "Cải tiến không ai nhận owner",
+        "text": "Ý tưởng tốt nhưng không có người duy trì.",
+        "best": "Chỉ triển khai khi có owner, quy trình vận hành, hỗ trợ và tiêu chí thành công.",
+        "tag": "Ownership",
+        "source": "TRUST"
+      },
+      {
+        "title": "Công nghệ vì hình ảnh",
+        "text": "Có đề xuất mua phần mềm để thể hiện chuyển đổi số.",
+        "best": "Đánh giá bằng bài toán thực tế, ROI, khả năng triển khai và năng lực người dùng.",
+        "tag": "Strategy",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tích hợp hệ thống",
+        "text": "Hai hệ thống cần tích hợp nhưng dữ liệu đầu vào chưa chuẩn.",
+        "best": "Chuẩn hóa dữ liệu và quy trình trước, tích hợp theo phase với kiểm thử rõ ràng.",
+        "tag": "Integration",
+        "source": "TRUST"
+      },
+      {
+        "title": "Mã nguồn cá nhân",
+        "text": "Một nhân sự tự viết tool quan trọng, chỉ người đó hiểu.",
+        "best": "Đưa vào quản lý mã nguồn, tài liệu, phân quyền và người kế thừa.",
+        "tag": "Sustainability",
+        "source": "TRUST"
+      },
+      {
+        "title": "Lỗi automation",
+        "text": "Script tự động gửi nhầm dữ liệu cho sai người.",
+        "best": "Dừng luồng, khoanh vùng ảnh hưởng, thông báo đúng người và thêm bước kiểm soát trước khi chạy lại.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "Ý tưởng bị phản biện",
+        "text": "Ý tưởng mới bị nhiều người phản biện nên chủ ý tưởng nản.",
+        "best": "Tách phản biện thành dữ kiện/rủi ro/điều kiện thử nghiệm, bảo vệ tinh thần cải tiến.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Số hóa quy trình xấu",
+        "text": "Quy trình gốc rườm rà, có đề xuất số hóa nguyên trạng.",
+        "best": "Tối ưu quy trình trước khi số hóa, bỏ bước không tạo giá trị và giữ kiểm soát cần thiết.",
+        "tag": "Process",
+        "source": "TRUST"
+      },
+      {
+        "title": "Đào tạo công cụ",
+        "text": "Đào tạo tool bằng slide, người dùng vẫn không làm được.",
+        "best": "Đào tạo theo case công việc, có bài tập, dữ liệu mẫu và hỗ trợ sau triển khai.",
+        "tag": "Training",
+        "source": "TRUST"
+      },
+      {
+        "title": "Quyền truy cập mở rộng",
+        "text": "Để tiện làm việc, nhiều người xin quyền admin.",
+        "best": "Phân quyền tối thiểu theo vai trò, log truy cập và quy trình cấp/thu hồi quyền.",
+        "tag": "Security",
+        "source": "TRUST"
+      },
+      {
+        "title": "Dữ liệu không sạch",
+        "text": "AI/dashboard cho kết quả sai do dữ liệu nguồn nhập lỗi.",
+        "best": "Đưa chất lượng dữ liệu vào quy trình: validation, owner, cảnh báo và debrief lỗi.",
+        "tag": "Data quality",
+        "source": "TRUST"
+      },
+      {
+        "title": "Công cụ chồng chéo",
+        "text": "Nhiều app cùng quản lý một loại việc.",
+        "best": "Rà soát mục đích, dữ liệu, người dùng và chuẩn hóa hệ sinh thái công cụ.",
+        "tag": "Architecture",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không đo hiệu quả",
+        "text": "Dự án công nghệ đã triển khai nhưng không đo kết quả.",
+        "best": "Thiết lập baseline trước-sau: thời gian, lỗi, mức dùng, hài lòng và giá trị quản trị.",
+        "tag": "KPI",
+        "source": "TRUST"
+      },
+      {
+        "title": "Chuyển đổi số và văn hóa",
+        "text": "Người dùng né hệ thống vì sợ bị kiểm soát.",
+        "best": "Truyền thông mục tiêu là minh bạch để hỗ trợ và cải tiến, không săn lỗi cá nhân.",
+        "tag": "Culture",
+        "source": "TRUST"
+      }
+    ],
+    "new_member": [
+      {
+        "title": "Không hiểu quy trình",
+        "text": "Người mới không hiểu quy trình nhưng ngại hỏi vì sợ bị đánh giá.",
+        "best": "Hỏi đúng người, nêu đã tự tìm hiểu phần nào và xác nhận lại cách làm trước khi thực hiện.",
+        "tag": "Onboarding",
+        "source": "TRUST"
+      },
+      {
+        "title": "Được giao việc mơ hồ",
+        "text": "Bạn nhận nhiệm vụ nhưng đầu ra và deadline chưa rõ.",
+        "best": "Hỏi lại mục tiêu, tiêu chuẩn đầu ra, deadline, nguồn dữ liệu và người review.",
+        "tag": "Giao",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thấy lỗi của anh chị",
+        "text": "Bạn phát hiện lỗi của người có kinh nghiệm hơn.",
+        "best": "Góp ý bằng dữ kiện, thái độ tôn trọng và đề xuất cùng kiểm tra lại.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Muốn chứng minh nhanh",
+        "text": "Bạn muốn làm thật nhanh để tạo ấn tượng, dù chưa hiểu hết bối cảnh.",
+        "best": "Ưu tiên hiểu tiêu chuẩn, hỏi giả định và kiểm tra bản nháp trước khi phát hành.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bị kéo vào nhóm chat",
+        "text": "Nhiều nhóm chat yêu cầu phản hồi, bạn chưa biết ưu tiên.",
+        "best": "Xác nhận ưu tiên với người quản lý, phân loại việc gấp/quan trọng và cập nhật trạng thái.",
+        "tag": "Responsibility",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sai lần đầu",
+        "text": "Bạn làm sai một việc nhỏ và có thể tự sửa âm thầm.",
+        "best": "Báo người liên quan, nêu đã sửa gì, ảnh hưởng còn lại và cách tránh lặp lại.",
+        "tag": "TRUST",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không dám nói không biết",
+        "text": "Trong họp có thuật ngữ chưa hiểu, mọi người nói nhanh.",
+        "best": "Ghi lại, hỏi sau hoặc xác nhận trong họp nếu ảnh hưởng quyết định.",
+        "tag": "Learning",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nhờ hỗ trợ",
+        "text": "Bạn hỏi đồng nghiệp nhưng họ đang bận.",
+        "best": "Chuẩn bị câu hỏi cụ thể, nêu deadline và đề xuất thời điểm thuận tiện để được hướng dẫn.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tự tạo file riêng",
+        "text": "Bạn tạo file theo cách mình dễ hiểu nhưng không giống mẫu phòng.",
+        "best": "Dùng mẫu chuẩn trước; nếu có cải tiến thì đề xuất sau khi hiểu lý do của mẫu hiện tại.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nghe phàn nàn nội bộ",
+        "text": "Bạn nghe người khác phàn nàn về phòng ban khác.",
+        "best": "Không lan truyền; nếu liên quan công việc thì đưa về fact, kênh chính thức và người xử lý.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Deadline đầu tiên",
+        "text": "Bạn sắp trễ deadline đầu tiên.",
+        "best": "Báo sớm trạng thái, nguyên nhân, phần đã xong, phần cần hỗ trợ và thời điểm hoàn thành mới.",
+        "tag": "Responsibility",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không rõ văn hóa",
+        "text": "Bạn không chắc một hành vi có phù hợp văn hóa NSN không.",
+        "best": "Đối chiếu TRUST, hỏi mentor/quản lý và chọn cách minh bạch, tôn trọng, có trách nhiệm.",
+        "tag": "TRUST",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nhận feedback khó nghe",
+        "text": "Bạn nhận góp ý thẳng về lỗi chuyên môn.",
+        "best": "Tách cảm xúc khỏi dữ kiện, hỏi tiêu chuẩn đúng và cam kết sửa cụ thể.",
+        "tag": "Gắn",
+        "source": "TRUST"
+      },
+      {
+        "title": "Được nhờ làm ngoài phạm vi",
+        "text": "Đồng nghiệp nhờ việc không thuộc nhiệm vụ nhưng có ảnh hưởng tiến độ chung.",
+        "best": "Hỗ trợ trong khả năng, báo quản lý nếu ảnh hưởng việc chính và chốt kỳ vọng rõ.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Dữ liệu khách hàng",
+        "text": "Bạn muốn dùng file dự án làm ví dụ học AI/công cụ mới.",
+        "best": "Ẩn dữ liệu nhạy cảm, kiểm tra quyền sử dụng và không đưa thông tin mật ra ngoài.",
+        "tag": "Security",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không biết escalation",
+        "text": "Một vấn đề vượt khả năng, bạn sợ báo lên sẽ bị xem là yếu.",
+        "best": "Escalate bằng fact, việc đã thử, rủi ro và câu hỏi cần quyết định.",
+        "tag": "Escalation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Họp mà không nói",
+        "text": "Bạn thấy vấn đề nhưng im lặng vì mình mới.",
+        "best": "Nêu câu hỏi/quan sát bằng thái độ học hỏi nếu vấn đề ảnh hưởng quyết định.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Muốn đổi cách làm",
+        "text": "Bạn thấy cách làm hiện tại chậm.",
+        "best": "Ghi lại pain point, thử đề xuất cải tiến nhỏ có kiểm soát sau khi hiểu quy trình.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Quên cập nhật tiến độ",
+        "text": "Bạn làm xong việc nhưng quên báo, người khác vẫn chờ.",
+        "best": "Cập nhật trạng thái đúng kênh, file/link đầu ra và việc cần người khác xử lý tiếp.",
+        "tag": "Communication",
+        "source": "TRUST"
+      },
+      {
+        "title": "Học từ debrief",
+        "text": "Sau một việc, team debrief nhanh nhưng bạn nghĩ không liên quan.",
+        "best": "Ghi lại bài học áp dụng cho phần việc của mình và hỏi nếu chưa hiểu.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      }
+    ],
+    "general": [
+      {
+        "title": "Yêu cầu thiếu thông tin",
+        "text": "Bạn nhận yêu cầu hỗ trợ nhưng thiếu đầu vào và deadline.",
+        "best": "Hỏi rõ mục tiêu, dữ liệu cần, deadline, mức ưu tiên và người xác nhận.",
+        "tag": "Support",
+        "source": "TRUST"
+      },
+      {
+        "title": "Việc không thuộc phòng mình",
+        "text": "Một việc không thuộc trách nhiệm trực tiếp nhưng ảnh hưởng dòng chảy chung.",
+        "best": "Hỗ trợ định tuyến đúng người, cung cấp thông tin mình có và cập nhật trạng thái.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Giao tiếp trong nhóm chung",
+        "text": "Bạn không đồng ý với phương án được nêu trong nhóm chat.",
+        "best": "Phản biện bằng dữ kiện, câu hỏi kiểm tra và đề xuất hướng xác minh.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thông tin chưa chắc chắn",
+        "text": "Bạn nghe thông tin thay đổi có thể ảnh hưởng người khác nhưng chưa được xác nhận.",
+        "best": "Thông báo trạng thái “chưa xác nhận”, mức ảnh hưởng và kế hoạch kiểm chứng.",
+        "tag": "TRUST",
+        "source": "TRUST"
+      },
+      {
+        "title": "Ưu tiên xung đột",
+        "text": "Hai quản lý giao việc cùng lúc, deadline trùng nhau.",
+        "best": "Minh bạch xung đột ưu tiên, đề xuất thứ tự xử lý và xin chốt từ người có thẩm quyền.",
+        "tag": "Responsibility",
+        "source": "TRUST"
+      },
+      {
+        "title": "Làm việc với dữ liệu cũ",
+        "text": "Bạn phát hiện file đang dùng có thể không phải bản mới nhất.",
+        "best": "Dừng dùng để xác nhận version, nguồn phát hành và cập nhật cho người liên quan.",
+        "tag": "Data",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bị yêu cầu xử lý gấp",
+        "text": "Người khác nói “làm nhanh giúp anh/chị” nhưng không nêu hậu quả nếu chậm.",
+        "best": "Hỏi rõ mức độ gấp, tác động, đầu ra tối thiểu và xác nhận ưu tiên.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Thấy cơ hội cải tiến",
+        "text": "Một thao tác lặp lại gây mất thời gian cho nhiều người.",
+        "best": "Ghi nhận vấn đề, đo tác động, đề xuất cải tiến nhỏ và thử nghiệm có kiểm soát.",
+        "tag": "Innovation",
+        "source": "TRUST"
+      },
+      {
+        "title": "Sự cố nhỏ",
+        "text": "Một lỗi nhỏ đã sửa xong, không ai bị ảnh hưởng rõ.",
+        "best": "Ghi lại nguyên nhân, thông báo người liên quan nếu có rủi ro và cập nhật checklist.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      },
+      {
+        "title": "Giữ hình ảnh công ty",
+        "text": "Có lỗi nội bộ, bạn muốn giải thích nhẹ để tránh xấu hình ảnh.",
+        "best": "Nói đúng fact trong phạm vi phù hợp, nêu phương án sửa và tránh phòng thủ.",
+        "tag": "TRUST",
+        "source": "TRUST"
+      },
+      {
+        "title": "Làm hộ để nhanh",
+        "text": "Đồng nghiệp làm chậm, bạn định làm hộ để kịp việc chung.",
+        "best": "Hỗ trợ cách làm, chia nhỏ bước, nhưng giữ người phụ trách chịu trách nhiệm đầu ra.",
+        "tag": "Giao",
+        "source": "TRUST"
+      },
+      {
+        "title": "Quá nhiều kênh",
+        "text": "Một việc được trao đổi qua email, chat và miệng.",
+        "best": "Chốt lại một bản xác nhận chính thức: quyết định, owner, deadline, tài liệu liên quan.",
+        "tag": "Communication",
+        "source": "TRUST"
+      },
+      {
+        "title": "Từ chối hỗ trợ",
+        "text": "Bạn không đủ thời gian hỗ trợ một yêu cầu hợp lý.",
+        "best": "Phản hồi sớm, nêu khả năng thực tế và đề xuất người/thời điểm thay thế.",
+        "tag": "Heart",
+        "source": "TRUST"
+      },
+      {
+        "title": "Quy trình bất hợp lý",
+        "text": "Một bước quy trình gây chậm nhưng vẫn là quy định hiện hành.",
+        "best": "Tuân thủ trong khi ghi nhận vấn đề, tác động và đề xuất cải tiến đúng kênh.",
+        "tag": "Professionalism",
+        "source": "TRUST"
+      },
+      {
+        "title": "Không rõ ai quyết",
+        "text": "Một việc kéo dài vì không rõ người quyết định cuối.",
+        "best": "Làm rõ RACI/owner quyết định và deadline chốt.",
+        "tag": "Teamwork",
+        "source": "TRUST"
+      },
+      {
+        "title": "Bị phê bình công khai",
+        "text": "Bạn bị góp ý trước nhóm và cảm thấy khó chịu.",
+        "best": "Giữ bình tĩnh, hỏi tiêu chuẩn cần đạt và đề nghị trao đổi riêng nếu cần làm rõ.",
+        "tag": "Sổ tay",
+        "source": "TRUST"
+      },
+      {
+        "title": "Nhiệm vụ không có tiêu chuẩn",
+        "text": "Bạn nhận đầu việc nhưng người giao chỉ nói “làm tốt nhất có thể”.",
+        "best": "Yêu cầu tiêu chí hoàn thành, mẫu tham chiếu, deadline và người review.",
+        "tag": "Giao",
+        "source": "TRUST"
+      },
+      {
+        "title": "Báo cáo rủi ro",
+        "text": "Bạn thấy một rủi ro nhưng chưa chắc xảy ra.",
+        "best": "Báo sớm theo xác suất-ảnh hưởng-dấu hiệu theo dõi và phương án nếu xảy ra.",
+        "tag": "Risk",
+        "source": "TRUST"
+      },
+      {
+        "title": "Học sau thất bại",
+        "text": "Một việc không đạt kết quả, mọi người muốn chuyển sang việc khác.",
+        "best": "Debrief ngắn: fact, nguyên nhân, điều giữ/điều bỏ, bài học áp dụng.",
+        "tag": "Debrief",
+        "source": "TRUST"
+      },
+      {
+        "title": "Tôn trọng khác biệt",
+        "text": "Đồng nghiệp có phong cách làm việc khác bạn, dễ gây hiểu lầm.",
+        "best": "Trao đổi về kỳ vọng, cách phối hợp, kênh cập nhật và tiêu chuẩn đầu ra.",
+        "tag": "Heart",
+        "source": "TRUST"
+      }
+    ]
+  },
+  "roleNames": {
+    "leadership": "Ban lãnh đạo / Quản lý cấp cao",
+    "pm": "PM / Quản lý dự án",
+    "tender_design": "Đấu thầu – Thiết kế",
+    "construction": "QLDA – Thi công – Kỹ thuật công trường",
+    "procurement": "Mua hàng – Cung ứng",
+    "finance": "Tài chính – Kế toán",
+    "hr_admin": "Nhân sự – Hành chính – Văn phòng",
+    "safety_quality": "An toàn – QA/QC – PCCC",
+    "business": "Kinh doanh – Khách hàng",
+    "technology": "Công nghệ – R&D – Chuyển đổi số",
+    "new_member": "Nhân sự mới",
+    "general": "Khác / Hỗ trợ chung"
+  }
+};
+
+function makeOptionSet(seed, roleName, idx) {
+  const fast = opt(
+    seed.fast || `Ưu tiên xử lý nhanh để không ảnh hưởng tiến độ/kết quả trước mắt của ${roleName}.`,
+    {efficiency:14, trust:-10, professionalism:-9, risk:14},
+    'Đây là bẫy hiệu quả ngắn hạn. Có thể tạo kết quả nhanh, nhưng chưa đủ lớp minh bạch, kiểm soát rủi ro và chữ tín dài hạn.'
+  );
+  const rigid = opt(
+    seed.rigid || `Giữ đúng phần việc/quy trình của ${roleName}, chỉ xử lý khi mọi điều kiện đã đầy đủ.`,
+    {professionalism:6, heart:-8, teamwork:-9, efficiency:-10, risk:-2},
+    'Đáp án này có phần đúng về chuẩn mực, nhưng dễ thành cứng nhắc. Tinh thần NSN cần giữ chuẩn đồng thời chủ động tháo điểm nghẽn.'
+  );
+  const best = opt(
+    seed.best,
+    {trust:18, responsibility:15, heart:8, professionalism:16, teamwork:12, innovation: seed.tag && seed.tag.toLowerCase().includes('innovation') ? 14 : 5, leadership: seed.source && seed.source.includes('3G') ? 14 : 5, risk:-16, efficiency:6},
+    `Đúng hệ quy chiếu NSN: cân bằng TRUST, trách nhiệm, chuyên nghiệp, phối hợp và giá trị bền vững. Điểm neo: ${seed.source} / ${seed.tag}.`,
+    true
+  );
+  const defensive = opt(
+    seed.defensive || 'Chuyển vấn đề về đúng bên liên quan hoặc cấp trên để tránh quyết định sai từ phía mình.',
+    {responsibility:-13, teamwork:-12, trust:-8, risk:10, efficiency:2},
+    'Đây là bẫy tự bảo vệ. Escalation hoặc phân tuyến trách nhiệm là cần thiết, nhưng không được biến thành đẩy việc hoặc né trách nhiệm.'
+  );
+  const arr = [fast, rigid, best, defensive];
+  const shift = idx % 4;
+  return arr.slice(shift).concat(arr.slice(0, shift));
+}
+
+function buildQuestions() {
+  const out = [];
+  QUESTION_DATA.common.forEach((s, i) => {
+    const seed = {title:s[0], text:s[1], best:s[2], tag:s[3], source:s[4]};
+    out.push(q(`ALL-${String(i+1).padStart(2,'0')}`, ['all'], seed.title, seed.text, [seed.source, seed.tag, 'Câu chung'], makeOptionSet(seed, 'NSN', i)));
+  });
+  Object.entries(QUESTION_DATA.roleSeeds).forEach(([roleId, list]) => {
+    const roleName = QUESTION_DATA.roleNames[roleId] || roleId;
+    list.forEach((seed, i) => {
+      out.push(q(`${roleId.toUpperCase()}-${String(i+1).padStart(2,'0')}`, [roleId], seed.title, seed.text, [roleName, seed.tag, seed.source], makeOptionSet(seed, roleName, i+1)));
+    });
+  });
+  return out;
+}
+
+const QUESTIONS = buildQuestions();
+
+function q(id,roles,title,text,tags,options){return {id,roles,title,text,tags,options}}
+function opt(text,score,feedback,best=false){return {text,score,feedback,best}}
+function clamp(n){return Math.max(0,Math.min(100,Math.round(n)))}
+function rawCultureScore(){
+  const s=state.scores;
+  return clamp((s.trust+s.responsibility+s.heart+s.professionalism+s.teamwork+s.innovation+s.leadership)/7 - Math.max(0,s.risk-38)*.38);
+}
+function treeScore(){
+  const raw = rawCultureScore();
+  if(!state.history.length) return raw;
+  const correct = state.history.filter(x=>x.best).length;
+  const accuracy = correct / state.history.length * 100;
+  if(state.questions.length && state.history.length === state.questions.length && correct === state.questions.length) return 100;
+  return clamp(raw * 0.35 + accuracy * 0.65);
+}
+function stageClass(score){if(score<25)return 'stage-seed'; if(score<45)return 'stage-sapling'; if(score<65)return 'stage-young'; if(score<90)return 'stage-mature'; return 'stage-fruit'}
+function caption(score){if(score<25)return 'Mầm cây còn yếu'; if(score<45)return 'Cây con đang hình thành'; if(score<65)return 'Thân cây đã vững hơn'; if(score<90)return 'Tán cây đang lan rộng'; return 'Cây đã ra quả'}
+function renderTree(el,score){el.className=stageClass(score); el.innerHTML=TREE_SVG}
+function init(){
+  document.getElementById('heroTree').innerHTML=TREE_SVG;
+  renderTree(document.getElementById('heroTree'),0);
+  document.getElementById('sideTree').innerHTML=TREE_SVG;
+  renderTree(document.getElementById('sideTree'),50);
+  document.getElementById('finalTree').innerHTML=TREE_SVG;
+  const sel=document.getElementById('roleSelect');
+  sel.innerHTML=ROLES.map(r=>`<option value="${r.id}">${r.name}</option>`).join('');
+  document.getElementById('startBtn').onclick=startGame;
+  document.getElementById('nextBtn').onclick=next;
+  document.getElementById('replayBtn').onclick=()=>location.reload();
+}
+function shuffleCopy(arr){
+  return [...arr].sort(()=>Math.random()-.5);
+}
+function pickQuestions(role){
+  const specific=shuffleCopy(QUESTIONS.filter(x=>x.roles.includes(role)));
+  const common=shuffleCopy(QUESTIONS.filter(x=>x.roles.includes('all')));
+  const selected=[...common.slice(0,2),...specific.slice(0,10)];
+  return shuffleCopy(selected).slice(0,12);
+}
+function startGame(){
+  state.player=document.getElementById('playerName').value.trim()||'Người chơi NSN';
+  state.role=document.getElementById('roleSelect').value;
+  state.roleName=ROLES.find(r=>r.id===state.role).name;
+  state.scores={...initialScores};state.index=0;state.history=[];state.selected=null;state.questions=pickQuestions(state.role);
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameScreen').style.display='grid';
+  document.getElementById('profileName').textContent=state.player;
+  document.getElementById('profileRole').textContent=state.roleName + ' · Khởi tạo giá trị bền lâu';
+  renderQuestion();
+}
+function renderQuestion(){
+  const item=state.questions[state.index]; state.selected=null;
+  document.getElementById('qIndex').textContent=String(state.index+1).padStart(2,'0')+'/'+String(state.questions.length).padStart(2,'0');
+  document.getElementById('progressBar').style.width=((state.index)/state.questions.length*100)+'%';
+  document.getElementById('tags').innerHTML=item.tags.map((t,i)=>`<span class="tag ${i==1?'green':i==2?'gold':''}">${t}</span>`).join('');
+  document.getElementById('caseTitle').textContent=item.title;
+  document.getElementById('caseText').textContent=item.text;
+  document.getElementById('feedback').style.display='none';
+  document.getElementById('nextBtn').disabled=true;
+  const letters=['A','B','C','D'];
+  document.getElementById('options').innerHTML=item.options.map((o,i)=>`<button class="option" data-i="${i}"><span class="letter">${letters[i]}</span><span>${o.text}</span></button>`).join('');
+  document.querySelectorAll('.option').forEach(btn=>btn.onclick=()=>selectOption(+btn.dataset.i));
+  updateScores();
+}
+function selectOption(i){
+  if(state.selected!==null)return;
+  state.selected=i;
+  const item=state.questions[state.index], chosen=item.options[i];
+  Object.entries(chosen.score).forEach(([k,v])=>state.scores[k]=clamp((state.scores[k]??50)+v));
+  document.querySelectorAll('.option').forEach((btn,idx)=>{btn.disabled=true;if(idx===i)btn.classList.add('selected')});
+  document.getElementById('fbTitle').textContent=chosen.best?'Đúng hệ quy chiếu NSN':'Đây là đáp án có lý, nhưng chưa tối ưu';
+  document.getElementById('fbText').textContent=chosen.feedback;
+  document.getElementById('feedback').style.display='block';
+  document.getElementById('nextBtn').disabled=false;
+  state.history.push({q:item.id,choice:i,best:!!chosen.best});
+  updateScores();
+}
+function updateScores(){
+  const s=state.scores, score=treeScore();
+  renderTree(document.getElementById('sideTree'),score);
+  document.getElementById('riskLabel').textContent=s.risk<35?'Rủi ro thấp':s.risk<58?'Rủi ro vừa':'Rủi ro cao';
+  const rows=[['TRUST','trust'],['Trách nhiệm','responsibility'],['Tận tâm','heart'],['Chuyên nghiệp','professionalism'],['Hợp tác','teamwork'],['Sáng tạo','innovation'],['3G','leadership'],['Rủi ro','risk']];
+  document.getElementById('scoreList').innerHTML=rows.map(([name,key])=>`<div class="score-row"><span>${name}</span><div class="bar ${key==='risk'?'risk':''}"><i style="width:${s[key]}%"></i></div><b>${s[key]}</b></div>`).join('');
+}
+function next(){
+  if(state.index<state.questions.length-1){state.index++;renderQuestion()}else showResult();
+}
+function showResult(){
+  document.getElementById('gameScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='block';
+  const score=treeScore(), s=state.scores;
+  document.getElementById('finalScore').textContent=score;
+  document.getElementById('finalCaption').textContent=caption(score) + ' · Đúng ' + state.history.filter(x=>x.best).length + '/' + state.questions.length;
+  renderTree(document.getElementById('finalTree'),score);
+  let title='Người Giữ Gốc'; let text='Bạn ưu tiên chữ tín, minh bạch và quyết định bền vững. Điểm cần giữ là không đánh đổi niềm tin dài hạn để lấy kết quả ngắn hạn.';
+  if(score<45){title='Người Chạy Deadline';text='Bạn có xu hướng ưu tiên kết quả trước mắt. Cần bổ sung lớp kiểm soát rủi ro, minh bạch giả định và phối hợp liên phòng.'}
+  else if(s.teamwork>=70){title='Người Kết Nối';text='Bạn mạnh ở hợp lực liên phòng. Cần tiếp tục giữ ranh giới trách nhiệm để teamwork không biến thành né trách nhiệm.'}
+  else if(s.leadership>=70){title='Thủ lĩnh 3G';text='Bạn có xu hướng dẫn dắt bằng Gắn - Gương - Giao. Cần tiếp tục giao việc rõ tiêu chuẩn, không làm thay và không thả nổi.'}
+  else if(s.innovation>=70){title='Người Đổi Mới Có Kiểm Soát';text='Bạn nhìn thấy cơ hội cải tiến. Cần luôn chuẩn hóa thử nghiệm để sáng tạo không thành tùy tiện.'}
+  document.getElementById('resultBadge').textContent=state.player+' · '+state.roleName;
+  document.getElementById('resultTitle').textContent=title;
+  document.getElementById('resultText').textContent=text;
+  document.getElementById('commitText').textContent='Sau mỗi quyết định khó, kiểm tra lại 3 câu: Có giữ chữ tín không? Có làm rõ trách nhiệm không? Có giúp hệ thống tốt hơn không?';
+}
+init();
+</script>
+</body>
+</html>
