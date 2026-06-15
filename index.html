@@ -123,7 +123,7 @@
     .bar{height:8px;background:rgba(7,87,166,.10);border-radius:999px;overflow:hidden}.bar i{display:block;height:100%;width:50%;background:linear-gradient(90deg,var(--nsn-blue),var(--leaf));border-radius:999px;transition:.35s ease}
     .risk i{background:linear-gradient(90deg,#f8c747,#e83b33)}
     .question-panel{padding:28px;background:rgba(255,255,255,.82)}
-    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px;color:var(--muted);font-weight:800;font-size:13px}.progress-line{height:9px;background:rgba(7,87,166,.10);border-radius:999px;overflow:hidden;flex:1}.progress-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--nsn-blue),var(--leaf));border-radius:999px;transition:.35s ease}
+    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px;color:var(--muted);font-weight:800;font-size:13px}.progress-line{height:9px;background:rgba(7,87,166,.10);border-radius:999px;overflow:hidden;flex:1}.progress-line i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--nsn-blue),var(--leaf));border-radius:999px;transition:.35s ease}.timer-pill{min-width:88px;text-align:center;padding:8px 11px;border-radius:999px;background:rgba(232,59,51,.10);color:#c02626;border:1px solid rgba(232,59,51,.18);font-weight:900}.timer-pill.safe{background:rgba(83,184,75,.14);color:#26703a;border-color:rgba(83,184,75,.22)}
     .tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}.tag{padding:7px 10px;border-radius:999px;background:rgba(7,87,166,.08);color:var(--nsn-blue);font-size:12px;font-weight:900}.tag.green{background:rgba(83,184,75,.14);color:#26703a}.tag.gold{background:rgba(248,199,71,.20);color:#876300}
     .case-title{font-size:28px;line-height:1.15;letter-spacing:-.045em;margin:0 0 12px;color:var(--nsn-navy)}
     .case-text{font-size:17px;line-height:1.7;color:#334861;margin:0 0 20px;font-weight:560}
@@ -194,6 +194,7 @@
         <div class="progress-top">
           <span id="qIndex">01/07</span>
           <div class="progress-line"><i id="progressBar"></i></div>
+          <span id="timerLabel" class="timer-pill safe">20s</span>
           <span id="riskLabel">Rủi ro thấp</span>
         </div>
         <div class="tag-row" id="tags"></div>
@@ -202,7 +203,7 @@
         <div class="options" id="options"></div>
         <div class="feedback" id="feedback"><h3 id="fbTitle"></h3><p id="fbText"></p></div>
         <div class="nav">
-          <button id="nextBtn" class="cta" disabled>Tiếp tục</button>
+          <button id="nextBtn" class="cta" disabled>Tiếp tục ngay</button>
         </div>
       </section>
     </section>
@@ -247,6 +248,9 @@ const ROLES = [
 ];
 
 const initialScores = {trust:50, responsibility:50, heart:50, professionalism:50, teamwork:50, innovation:50, leadership:50, efficiency:50, risk:28};
+const TIMER_SECONDS = 20;
+let timerId = null;
+let timeLeft = TIMER_SECONDS;
 let state = {player:'',role:'',roleName:'',scores:{...initialScores},questions:[],index:0,selected:null,history:[]};
 
 const TREE_SVG = `
@@ -2138,6 +2142,49 @@ function startGame(){
   document.getElementById('profileRole').textContent=state.roleName + ' · Khởi tạo giá trị bền lâu';
   renderQuestion();
 }
+
+function clearQuestionTimer(){
+  if(timerId){clearInterval(timerId); timerId=null;}
+}
+function updateTimerLabel(){
+  const el=document.getElementById('timerLabel');
+  if(!el)return;
+  el.textContent=timeLeft+'s';
+  el.className='timer-pill ' + (timeLeft>3?'safe':'');
+}
+function startQuestionTimer(){
+  clearQuestionTimer();
+  timeLeft=TIMER_SECONDS;
+  updateTimerLabel();
+  timerId=setInterval(()=>{
+    timeLeft--;
+    updateTimerLabel();
+    if(timeLeft<=0){
+      clearQuestionTimer();
+      handleTimeUp();
+    }
+  },1000);
+}
+function applyMissedPenalty(){
+  const penalty={trust:-8,responsibility:-8,heart:-4,professionalism:-6,teamwork:-4,innovation:-2,leadership:-3,efficiency:-4,risk:10};
+  Object.entries(penalty).forEach(([k,v])=>state.scores[k]=clamp((state.scores[k]??50)+v));
+}
+function handleTimeUp(){
+  if(state.selected===null){
+    state.selected='timeout';
+    applyMissedPenalty();
+    document.querySelectorAll('.option').forEach(btn=>btn.disabled=true);
+    document.getElementById('fbTitle').textContent='Hết giờ: mất điểm câu này';
+    document.getElementById('fbText').textContent='Không chọn đáp án trong 20 giây được tính là bỏ qua. Trong công việc thật, chậm quyết định cũng là một rủi ro cần kiểm soát.';
+    document.getElementById('feedback').style.display='block';
+    state.history.push({q:state.questions[state.index].id,choice:null,best:false,timeout:true});
+    updateScores();
+    setTimeout(next,700);
+  }else{
+    next();
+  }
+}
+
 function renderQuestion(){
   const item=state.questions[state.index]; state.selected=null;
   document.getElementById('qIndex').textContent=String(state.index+1).padStart(2,'0')+'/'+String(state.questions.length).padStart(2,'0');
@@ -2151,15 +2198,20 @@ function renderQuestion(){
   document.getElementById('options').innerHTML=item.options.map((o,i)=>`<button class="option" data-i="${i}"><span class="letter">${letters[i]}</span><span>${o.text}</span></button>`).join('');
   document.querySelectorAll('.option').forEach(btn=>btn.onclick=()=>selectOption(+btn.dataset.i));
   updateScores();
+  startQuestionTimer();
 }
 function selectOption(i){
   if(state.selected!==null)return;
   state.selected=i;
   const item=state.questions[state.index], chosen=item.options[i];
   Object.entries(chosen.score).forEach(([k,v])=>state.scores[k]=clamp((state.scores[k]??50)+v));
+  if(!chosen.best){
+    const wrongPenalty={trust:-4,responsibility:-4,professionalism:-3,teamwork:-2,efficiency:-2,risk:5};
+    Object.entries(wrongPenalty).forEach(([k,v])=>state.scores[k]=clamp((state.scores[k]??50)+v));
+  }
   document.querySelectorAll('.option').forEach((btn,idx)=>{btn.disabled=true;if(idx===i)btn.classList.add('selected')});
-  document.getElementById('fbTitle').textContent=chosen.best?'Đúng hệ quy chiếu NSN':'Đây là đáp án có lý, nhưng chưa tối ưu';
-  document.getElementById('fbText').textContent=chosen.feedback;
+  document.getElementById('fbTitle').textContent=chosen.best?'Đúng hệ quy chiếu NSN':'Chọn sai: mất điểm câu này';
+  document.getElementById('fbText').textContent=chosen.feedback + (chosen.best ? '' : ' Câu này bị trừ điểm vì lựa chọn chưa bảo vệ đủ TRUST, trách nhiệm hoặc kiểm soát rủi ro.');
   document.getElementById('feedback').style.display='block';
   document.getElementById('nextBtn').disabled=false;
   state.history.push({q:item.id,choice:i,best:!!chosen.best});
@@ -2173,6 +2225,7 @@ function updateScores(){
   document.getElementById('scoreList').innerHTML=rows.map(([name,key])=>`<div class="score-row"><span>${name}</span><div class="bar ${key==='risk'?'risk':''}"><i style="width:${s[key]}%"></i></div><b>${s[key]}</b></div>`).join('');
 }
 function next(){
+  clearQuestionTimer();
   if(state.index<state.questions.length-1){state.index++;renderQuestion()}else showResult();
 }
 function showResult(){
